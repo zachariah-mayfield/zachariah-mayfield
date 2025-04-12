@@ -1,0 +1,47 @@
+- name: Copy Certificates to the server - Block
+  block:
+    - name: Check if the certs folder exists
+      win_stat:
+        path: "{{ cert_dir_for_sslid }}"
+      register: cert_dir_check
+
+    - name: Create certs folder if it does not exist.
+      win_file:
+        path: "{{ cert_dir_for_sslid }}"
+        state: directory
+      when: not cert_dir_check.stat.exists
+
+    - name: Copy the certs to the server
+      win_copy:
+        src: "{{ item }}"
+        dest: "{{ cert_dir_for_sslid }}"
+        remote_src: yes
+      loop: "{{ certs_to_copy }}"
+      when: cert_dir_check.stat.exists  
+      register: copy_cert_result
+      failed_when: copy_cert_result is failed
+    
+    - name: Check if the .pem file copied successfully
+      win_stat:
+        path: "{{ cert_dir_for_sslid }}\\{{ alias_name }}.pem"
+      register: pem_file_check
+      failed_when: not pem_file_check.stat.exists
+      when: cert_dir_check.stat.exists
+      
+    - name: Rename the .pem file to .crt
+      win_command: "move {{ cert_dir_for_sslid }}\\{{ alias_name }}.pem {{ cert_dir_for_sslid }}\\{{ alias_name }}.crt"
+      args:
+        executable: cmd
+        chdir: "{{ cert_dir_for_sslid }}"
+      when: pem_file_check.stat.exists
+      register: rename_pem_result
+      failed_when: rename_pem_result.rc != 0
+
+    - name: Move unencrypeted .key file to .rsa.key file
+      win_command: "move {{ cert_dir_for_sslid }}\\{{ alias_name }}.key {{ cert_dir_for_sslid }}\\{{ alias_name }}.rsa.key"
+      args:
+        executable: cmd
+        chdir: "{{ cert_dir_for_sslid }}"
+      when: pem_file_check.stat.exists
+      register: move_key_result
+      failed_when: move_key_result.rc != 0
