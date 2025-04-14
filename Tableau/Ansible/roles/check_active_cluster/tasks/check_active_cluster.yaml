@@ -1,3 +1,6 @@
+## - name: Include CyberArk password retrieval tasks
+##   include_tasks: ../../../../../CyberArk/Ansible/roles/get_cyberark_password/tasks/v2_get_cyberark_password.yaml
+
 
 - name: Verify Tableau is running.
   block:
