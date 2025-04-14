@@ -2,18 +2,18 @@ import requests
 import xml.etree.ElementTree as ET
 
 # Function to get Tableau API Token
-def get_tableau_api_token(tableau_api_username, tableau_api_password, tableau_server_name, environment, tableau_server_api_version):
-        return tableau_api_token
+def get_tableau_api_token(tableau_api_username, tableau_api_password, tableau_server_name, Environment, tableau_server_api_version):
+        return token
 
 
-def get_tableau_sites(tableau_api_token, tableau_server_name, environment, tableau_server_api_version):
+def get_tableau_sites(token, tableau_server_name, Environment, tableau_server_api_version):
     # Set URL for Tableau Sites
-    tableau_sites_url = f"https://{tableau_server_name}.{environment}.Company-Domain.com/api/{tableau_server_api_version}/sites"
+    tableau_sites_url = f"https://{tableau_server_name}.{Environment}.Company-Domain.com/api/{tableau_server_api_version}/sites"
 
     # Prepare headers
     headers = {
         'Content-Type': 'application/xml',
-        'X-Tableau-Auth': tableau_api_token,
+        'X-Tableau-Auth': token,
     }
 
     # Make the GET request to retrieve the sites

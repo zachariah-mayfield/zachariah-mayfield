@@ -40,15 +40,15 @@ TableauServerAPI_Version = "3.18"  # example version
 # -----------------------------
 # Function to Get Tableau API Token
 # -----------------------------
-def get_tableau_api_token(username, password, server_name, environment, api_version):
+def get_tableau_api_token(Tableau_API_UserName, Tableau_API_Password, TableauServerName, Environment, TableauServerAPI_Version):
     try:
-        url = f"https://{server_name}.{environment}.Company-Domain.com/api/{api_version}/auth/signin/"
+        url = f"https://{TableauServerName}.{Environment}.Company-Domain.com/api/{TableauServerAPI_Version}/auth/signin/"
         headers = {
             "Content-Type": "application/xml"
         }
         body = f"""
         <tsRequest>
-            <credentials name="{username}" password="{password}">
+            <credentials name="{Tableau_API_UserName}" password="{Tableau_API_Password}">
                 <site contentUrl="" />
             </credentials>
         </tsRequest>
