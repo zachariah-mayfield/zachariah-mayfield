@@ -5,13 +5,6 @@
 # openssl
 # https://pypi.org/project/pyOpenSSL/#files
 
-
-
-
-
-
-
-
 - name: Create Certificates - Block
   block:
     - name: Remove whl folder
@@ -210,7 +203,7 @@
 
     - name: Get X509IOR root CA file
       uri:
-        url: "{{ sectigo_api_url }}/ssl/v1/collect/{{ sslid }}/X509IOR"
+        url: "{{ sectigo_api_url }}/ssl/v1/collect/{{ sslid }}/X509IO"
         method: GET
         headers:
           Content-Type: application/json

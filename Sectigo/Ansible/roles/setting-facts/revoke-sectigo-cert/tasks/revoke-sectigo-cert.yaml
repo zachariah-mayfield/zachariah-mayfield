@@ -1,0 +1,32 @@
+## page 103 - comming soon    
+
+- name: Set Facts for Certificates - Block
+  block:
+    - name: Certificate Directory
+      ansible.builtin.set_fact:
+        cert_dir: "C:\\Sectigo\\certs"
+      run_once: true
+      delegate_to: localhost
+
+    - name: Certificate File
+      ansible.builtin.set_fact:
+        cert_file: "{{ cert_dir }}\\{{ alias_name }}_sslid.txt"
+      run_once: true
+      delegate_to: localhost
+      when: cert_dir is defined 
+
+    - name: Register sslid as a fact
+      ansible.windows.win_shell: |
+        "type {{ cert_file }}"
+      args:
+        executable: cmd
+        chdir: "{{ cert_dir }}"
+      register: sslid
+      when: cert_file is defined
+
+    - name: set sslidx as a fact
+      ansible.builtin.set_fact:
+        sslidx: "{{ sslid.stdout_lines }}"
+      run_once: true
+      delegate_to: localhost
+      when: cert_file is defined
