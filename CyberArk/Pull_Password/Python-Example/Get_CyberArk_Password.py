@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 #region import
 import argparse
