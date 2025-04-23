@@ -12,7 +12,7 @@ Holding a Federal Government Public Trust clearance, I am committed to deliverin
 
 Solid understanding of Agile methodologies, including Scrum, with hands-on experience in sprint planning, sprint cycles, daily stand-ups, and utilizing tools like Jira, LeanKit, and Azure DevOps for story tracking, project management and delivery. 
 
-Proficient in cloud technologies majoring in (Azure) minoring in (AWS), and (GCP), scripting languages (Ansible, PowerShell, Python, Terraform, Bash, and Batch), and CI/CD DevOps practices.
+Proficient in cloud technologies majoring in (Azure) minoring in (AWS), and (GCP), scripting languages (Ansible, PowerShell, Python, Terraform, C#, Bash, and Batch), and CI/CD DevOps practices.
 
 Successfully automated infrastructure, streamlined processes, and implemented efficient solutions to complex technical challenges, consistently improving efficiency at large enterprise companies.
 
