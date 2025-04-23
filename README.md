@@ -14,6 +14,6 @@ Solid understanding of Agile methodologies, including Scrum, with hands-on exper
 
 Proficient in cloud technologies majoring in (Azure) minoring in (AWS), and (GCP), scripting languages (Ansible, PowerShell, Python, Terraform, C#, Bash, and Batch), and CI/CD DevOps practices.
 
-Successfully automated infrastructure, streamlined processes, and implemented efficient solutions to complex technical challenges, consistently improving efficiency at large enterprise companies.
+Successfully automated infrastructure, streamlined processes, and implemented efficient solutions to complex technical challenges, consistently improving efficiency at many large enterprise companies.
 
 ![image](https://github.com/user-attachments/assets/7ad04aa0-d12f-41b8-92e2-8d0a94b14e05)
