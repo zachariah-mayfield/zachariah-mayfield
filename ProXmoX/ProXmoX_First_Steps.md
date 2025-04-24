@@ -33,6 +33,15 @@ deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription
 
 ***
 
+# 🆕 Update the package list:
+```bash
+# bash
+
+apt update
+```
+
+***
+
 ✅ Optional: Remove annoying update warnings in Web UI
 To remove the red “No valid subscription” notice:
 ```bash
@@ -72,3 +81,4 @@ GRUB_CMDLINE_LINUX="consoleblank=300"
 
 update-grub
 ```
+
