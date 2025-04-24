@@ -11,6 +11,37 @@ lvresize -l +100%FREE /dev/pve/root
 resize2fs /dev/mapper/pve-root
 ```
 
+# 📄 Disable enterprise repo
+
+# 🛠️ Edit this file /etc/apt/sources.list.d/pve-enterprise.list
+Comment out the line by adding a # in front:
+```bash
+# deb https://enterprise.proxmox.com/debian/pve bookworm pve-enterprise
+```
+💾 Save and exit
+
+***
+
+# 📄 Enable the no-subscription repo:
+
+# 🛠️ Edit this file /etc/apt/sources.list
+
+Add this line at the bottom if it's not already there:
+```bash
+deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription
+```
+
+***
+
+✅ Optional: Remove annoying update warnings in Web UI
+To remove the red “No valid subscription” notice:
+```bash
+sed -i.bak "s/data.status !== 'Active'/false/g" /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+systemctl restart pveproxy
+```
+⚠️ Note: This gets overwritten with updates, so you might need to reapply after upgrades.
+***
+
 # 🛠️ Edit this file and the following two values if you are installing Proxmox on a laptop and you don't want the server to die when closing the lid:
 
 **/etc/systemd/logind.conf**
