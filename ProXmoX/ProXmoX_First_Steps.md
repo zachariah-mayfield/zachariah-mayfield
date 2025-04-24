@@ -37,5 +37,7 @@ GRUB_CMDLINE_LINUX="consoleblank=300"
 
 # ⬆️ Update Grub
 ```bash
+# bash
+
 update-grub
 ```
