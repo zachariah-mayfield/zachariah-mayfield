@@ -79,7 +79,7 @@ mount /dev/sdc1 /mnt/ventoy
 ls -lh /mnt/ventoy
 ```
 
-5. Edit this file and the following two values if you are installing Proxmox on a laptop:
+5. Edit this file and the following two values if you are installing Proxmox on a laptop and you don't want the server to die when closing the lid:
 
 **/etc/systemd/logind.conf**
 
@@ -96,3 +96,11 @@ HandleLidSwitchDocked=ignore
 systemctl restart systemd-logind.service
 ```   
 
+7. Edit this file and the following value if you are installing Proxmox on a laptop and you don't want the screen to burnout on the laptop:
+
+**/etc/default/grub**
+
+```bash
+GRUB_CMDLINE_LINUX="consoleblank=300"
+```
+![image](https://github.com/user-attachments/assets/e035b2c8-c3d8-4433-9124-dd372ee642d0)
