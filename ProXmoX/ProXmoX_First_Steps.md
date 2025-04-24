@@ -89,3 +89,10 @@ HandleLidSwitchDocked=ignore
 ```
 ![image](https://github.com/user-attachments/assets/18356c5b-e69f-476e-84ea-2691c961a015)
 
+6. Restart the login service:
+```bash
+# bash
+
+systemctl restart systemd-logind.service
+```   
+
