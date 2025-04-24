@@ -23,10 +23,10 @@ resize2fs /dev/mapper/pve-root
 ***
 
 # 💾 Prepare USB with Windows ISO
-1. Copy the Windows 11 ISO to a USB Stick
+1. ✂️📋Copy the Windows 11 ISO to a USB Stick
 You can use a tool like [Ventoy](https://www.ventoy.net/en/index.html) to boot directly from ISOs placed on the USB.
 
-2. Download VirtIO Drivers
+2. ⬇️ Download VirtIO Drivers
 To ensure Windows recognizes the virtual hardware in Proxmox (especially disk and network adapters), download the VirtIO driver ISO:
 
 ***
