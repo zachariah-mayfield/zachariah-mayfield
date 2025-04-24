@@ -78,3 +78,14 @@ mount /dev/sdc1 /mnt/ventoy
 
 ls -lh /mnt/ventoy
 ```
+
+5. Edit this file and the following two values if you are installing Proxmox on a laptop:
+
+**/etc/systemd/logind.conf**
+
+```bash
+HandleLidSwitch=ignore
+HandleLidSwitchDocked=ignore
+```
+![image](https://github.com/user-attachments/assets/18356c5b-e69f-476e-84ea-2691c961a015)
+
