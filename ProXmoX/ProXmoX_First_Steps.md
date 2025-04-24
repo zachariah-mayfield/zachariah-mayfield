@@ -1,3 +1,4 @@
+
 # 📄 Proxmox Initial Setup on a Laptop
 This guide walks you through expanding your Proxmox LVM
 
@@ -83,3 +84,14 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on"
 
 update-grub
 ```
+
+***
+
+# 📦Install wsdd for Windows discorvery
+```bash
+# bash
+
+apt update
+sudo apt install wsdd
+```
+
