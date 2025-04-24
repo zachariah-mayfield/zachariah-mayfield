@@ -40,7 +40,7 @@ To ensure Windows recognizes the virtual hardware in Proxmox (especially disk an
 ***
 
 # 🔍 Detect and Mount Ventoy USB on Proxmox
-1. List Attached Devices
+1. 📝 List Attached Devices
 Run this to identify the USB partitions:
 ```bash
 # bash
@@ -55,29 +55,28 @@ sdc     8:32   1 119.5G  0 disk
 └─sdc2  8:34   1   32MB  0 part  ← Ventoy boot partition (vfat)
 ```
 
-2. Mount the Correct Partition
-Create a Mount Point:
+2. 🆕 Create a Mount Point:
 ```bash
 # bash
 
 mkdir -p /mnt/ventoy
 ```
 
-3. Mount the Data Partition (sdc1):
+3. 🗄️ Mount the Data Partition (sdc1):
 ```bash
 # bash
 
 mount /dev/sdc1 /mnt/ventoy
 ```
 
-4. View Files on the USB:
+4. 👀 View Files on the USB:
 ```bash
 # bash
 
 ls -lh /mnt/ventoy
 ```
 
-5. Copy the ISO file(s) fromm the usb to the Proxmox server:
+5. ✂️📋Copy the ISO file(s) fromm the usb to the Proxmox server:
 ```bash
 # bash
 
@@ -85,7 +84,7 @@ cp /mnt/ventoy/windows_11_pro.iso /var/lib/vz/template/iso/
 cp /mnt/ventoy/windows_virtualization_drivers.iso /var/lib/vz/template/iso/
 ```
 
-6. Edit this file and the following two values if you are installing Proxmox on a laptop and you don't want the server to die when closing the lid:
+6. 🛠️ Edit this file and the following two values if you are installing Proxmox on a laptop and you don't want the server to die when closing the lid:
 
 **/etc/systemd/logind.conf**
 ```bash
@@ -94,14 +93,14 @@ HandleLidSwitchDocked=ignore
 ```
 ![image](https://github.com/user-attachments/assets/18356c5b-e69f-476e-84ea-2691c961a015)
 
-7. Restart the login service:
+7. 🔄 Restart the login service:
 ```bash
 # bash
 
 systemctl restart systemd-logind.service
 ```   
 
-8. Edit this file and the following value if you are installing Proxmox on a laptop and you don't want the screen to burnout on the laptop:
+8. 🛠️ Edit this file and the following value if you are installing Proxmox on a laptop and you don't want the screen to burnout on the laptop:
 
 **/etc/default/grub**
 ```bash
@@ -109,12 +108,12 @@ GRUB_CMDLINE_LINUX="consoleblank=300"
 ```
 ![image](https://github.com/user-attachments/assets/e035b2c8-c3d8-4433-9124-dd372ee642d0)
 
-9. Update Grub
+9. ⬆️ Update Grub
 ```bash
 update-grub
 ```
 
-10. safely eject - Umount USB:
+10. ⏏️ safely eject - Umount USB:
 ```bash
 # bash
 
