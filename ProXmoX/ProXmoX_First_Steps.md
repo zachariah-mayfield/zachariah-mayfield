@@ -67,11 +67,13 @@ HandleLidSwitchDocked=ignore
 systemctl restart systemd-logind.service
 ```   
 
-# 🛠️ Edit this file and the following value if you are installing Proxmox on a laptop and you don't want the screen to burnout on the laptop:
-
+# 🛠️ Edit this file and the following value if you are installing Proxmox on a laptop and you don't want the screen to burnout on the laptop for being left on:
 **/etc/default/grub**
+
+Also while in the grub file you will want to Ensure IOMMU is enabled
 ```bash
 GRUB_CMDLINE_LINUX="consoleblank=300"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on"
 ```
 ![image](https://github.com/user-attachments/assets/e035b2c8-c3d8-4433-9124-dd372ee642d0)
 
@@ -81,4 +83,3 @@ GRUB_CMDLINE_LINUX="consoleblank=300"
 
 update-grub
 ```
-
