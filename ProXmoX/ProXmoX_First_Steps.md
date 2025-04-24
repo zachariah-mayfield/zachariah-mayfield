@@ -1,21 +1,15 @@
 #
 
-Create a new mount point (optional but clean):
-
-bash
-Copy
-Edit
+### Create a new mount point:
 mkdir -p /mnt/ventoy
-Mount just the data partition (sdc1):
 
-bash
-Copy
-Edit
+
+### Mount just the data partition (sdc1):
 mount /dev/sdc1 /mnt/ventoy
-View your files:
 
-bash
-Copy
-Edit
+
+### View your files:
 ls -lh /mnt/ventoy
-You should now see all the ISO files you copied (like windows11.iso, etc.).
+
+
+### You should now see all the ISO files you copied (like windows11.iso, etc.).
