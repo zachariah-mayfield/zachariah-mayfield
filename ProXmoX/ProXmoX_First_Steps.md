@@ -113,3 +113,10 @@ GRUB_CMDLINE_LINUX="consoleblank=300"
 ```bash
 update-grub
 ```
+
+10. safely eject - Umount USB:
+```bash
+# bash
+
+umount -l /mnt/ventoy
+```
