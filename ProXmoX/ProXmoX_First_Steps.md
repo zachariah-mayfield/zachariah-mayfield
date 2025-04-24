@@ -31,15 +31,13 @@ To ensure Windows recognizes the virtual hardware in Proxmox (especially disk an
 
 ***
 
-# 🔗 Windows VirtIO Driver wiki page
+# 🔗 Windows VirtIO Driver:
 
 🔗 [Proxmox virtual environment wiki for Windows VirtIO Drivers - Main Page](https://pve.proxmox.com/wiki/Windows_VirtIO_Drivers)
 
 🔗 [Windows VirtIO Driver Direct download link](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso)
 
 ***
-
-Upload it to your Proxmox ISO storage via the web UI or SCP.
 
 # 🔍 Detect and Mount Ventoy USB on Proxmox
 1. List Attached Devices
@@ -79,7 +77,15 @@ mount /dev/sdc1 /mnt/ventoy
 ls -lh /mnt/ventoy
 ```
 
-5. Edit this file and the following two values if you are installing Proxmox on a laptop and you don't want the server to die when closing the lid:
+5. Copy the ISO file(s) fromm the usb to the Proxmox server:
+```bash
+# bash
+
+cp /mnt/ventoy/windows_11_pro.iso /var/lib/vz/template/iso/
+cp /mnt/ventoy/windows_virtualization_drivers.iso /var/lib/vz/template/iso/
+```
+
+6. Edit this file and the following two values if you are installing Proxmox on a laptop and you don't want the server to die when closing the lid:
 
 **/etc/systemd/logind.conf**
 ```bash
@@ -88,14 +94,14 @@ HandleLidSwitchDocked=ignore
 ```
 ![image](https://github.com/user-attachments/assets/18356c5b-e69f-476e-84ea-2691c961a015)
 
-6. Restart the login service:
+7. Restart the login service:
 ```bash
 # bash
 
 systemctl restart systemd-logind.service
 ```   
 
-7. Edit this file and the following value if you are installing Proxmox on a laptop and you don't want the screen to burnout on the laptop:
+8. Edit this file and the following value if you are installing Proxmox on a laptop and you don't want the screen to burnout on the laptop:
 
 **/etc/default/grub**
 ```bash
@@ -103,7 +109,7 @@ GRUB_CMDLINE_LINUX="consoleblank=300"
 ```
 ![image](https://github.com/user-attachments/assets/e035b2c8-c3d8-4433-9124-dd372ee642d0)
 
-8. Update Grub
+9. Update Grub
 ```bash
 update-grub
 ```
