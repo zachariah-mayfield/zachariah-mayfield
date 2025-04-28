@@ -1,0 +1,22 @@
+##
+- name: Update Project Permissions
+  ansible.builtin.uri:
+    url: "https://{{ TableauServerName }}/api/{{ Tableau_API_Version }}/sites/{{ Tableau_Site_ID }}/projects/{{ Project_ID }}"
+    method: PUT
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      X-Tableau-Auth: "{{ hostvars['localhost'].Tableau_Authentication_Token }}"
+    body: "{{ JSON_BODY }}"
+    body_format: json
+    validate_certs: false
+    return_content: true
+    use_proxy: false
+    follow_redirects: all
+  register: update_project_permissions_response
+  failed_when: update_project_permissions_response.status != 200
+  changed_when: update_project_permissions_response.status != 200
+  until: update_project_permissions_response.status == 200
+  retries: 3
+  delay: 5
+  when: update_project_permissions_response is not defined or update_project_permissions_response.status != 200

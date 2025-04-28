@@ -1,0 +1,40 @@
+##
+- name: Initialize an empty list to store project datasource content
+  ansible.builtin.set_fact:
+    Project_Datasource_Content: []
+  delegate_to: localhost
+  run_once: true
+
+- name: Reset page size and page number
+  ansible.builtin.set_fact:
+    pageSize: 1000
+    pageNumber: 1
+    has_more_pages: true
+
+- name: List datasources
+  ansible.builtin.uri:
+    url: "https://{{ TableadatasourceverName }}/api/{{ Tableau_API_Version }}/sites/{{ Tableau_Site_ID }}/datasources?pageSize={{ pageSize }}&pageNumber={{ pageNumber }}&filter=projectName:eq:{{ Project_Name }}&fields=_all_"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      X-Tableau-Auth: "{{ hostvars['localhost'].Tableau_Authentication_Token }}"
+    validate_certs: false
+    return_content: true
+    use_proxy: false
+    follow_redirects: all
+  register: Project_Datasource_Content_response
+  failed_when: Project_Datasource_Content_response.status != 200
+  until: Project_Datasource_Content_response.json.datasources.datasource | length < pageSize
+  retries: 5
+  delay: 2
+  when: Tableau_Authentication_Token is defined
+
+- name: Append Project Datasource Content to the list
+  ansible.builtin.set_fact:
+    Project_Datasource_Content: "{{ Project_Datasource_Content + (Project_Datasource_Content_response.json.datasources.datasource  | default([])) }}"
+    pageNumber: "{{ pageNumber + 1 }}"
+  delegate_to: localhost
+  run_once: true
+  when: Project_Datasource_Content_response.json.datasources.datasource | length > 0
+  # when: Project_Datasource_Content_response.json.datasources.datasource | length > 0 and Project_Datasource_Content_response.json.datasources.datasource is defined 
