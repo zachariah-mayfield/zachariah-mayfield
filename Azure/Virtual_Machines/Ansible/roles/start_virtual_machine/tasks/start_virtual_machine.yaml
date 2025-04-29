@@ -1,0 +1,30 @@
+  
+
+
+
+- name: Start Azure Virtual Machines and wait for ALL Azure Virtual Machines to start.
+  block:
+    - name: Start Azure Virtual Machine.
+      azure_rm_virtualmachine:
+        subscription_id: "{{ Subscription_ID }}"
+        tenant: "{{ Tenant_ID }}"
+        client_id: "{{ Client_ID }}"
+        secret: "{{ Secret }}"
+        resource_group: "{{ Resource_Group }}"
+        name: "{{ Server__Name }}"
+        started: true
+      vars:
+            Server__Name: "{{ item }}"
+      register: azure_rm_virtualmachine_results
+      loop: "{{ Server__Names }}"
+      async: 3600
+      poll: 0
+
+    - name: Wait for ALL Azure Virtual Machines to start.
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: vm_power_state_status
+      until: vm_power_state_status.finished
+      retries: 100
+      delay: 10
+      loop: "{{ azure_rm_virtualmachine_results.results }}"
