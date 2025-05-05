@@ -1,0 +1,7 @@
+index=wineventlog source=wineventlog:Company* Type=Warning SourceName=HardDisk_FreeSpace_Monitor EventCode=9999 Message!="System.Collections.*"
+| rex field=Message "Drive Letter: (?<Disk_Letter>.+)" 
+| rex field=Message "Total Disk Size: (?<Disk_Total_Size>.+)" 
+| rex field=Message "Free Disk Size: (?<Disk_Free_Size>.+)" 
+| rex field=Message "Disk Percentage Available: (?<Disk_Percentage_Available>.+)" 
+| rex field=Message "Disk Over Threshold: (?<Disk_Over_Threshold>.+)" 
+| table _time host source Disk_*

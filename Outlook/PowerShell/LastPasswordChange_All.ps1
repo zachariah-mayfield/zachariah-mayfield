@@ -2,7 +2,7 @@
 Import-Module MSOnline
 Import-Module LyncOnlineConnector
 
-$User = "admin@Companycorpt.com"
+$User = "admin@Companyt.com"
 $Hash = "$PSScriptRoot\Hash.txt"
 [Byte[]]$Key = (9,8,8,8,6,4,4,3,6,7,3,9,5,9,4,3)
 $Pass = Get-Content $Hash | ConvertTo-SecureString -Key $Key

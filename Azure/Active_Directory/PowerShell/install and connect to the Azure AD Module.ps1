@@ -4,7 +4,7 @@
 
 $KEY = "KEY"
 
-$User = "O365Sync.ServiceNow@Companycorp.onmicrosoft.com"
+$User = "O365Sync.ServiceNow@Company.onmicrosoft.com"
 $PWord = ConvertTo-SecureString -String $KEY -AsPlainText -Force
 $UserCredential = New-Object -TypeName "System.Management.Automation.PSCredential" -ArgumentList $User, $PWord
 

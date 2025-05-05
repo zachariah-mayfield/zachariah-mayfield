@@ -76,16 +76,16 @@ Catch {
 ####################################################################################################################################################
 ####################################################################################################################################################
 
-# Adding the Full Access Member "office365exchangeadmins@Companycorp.onmicrosoft.com" to the Shared MailBox!
+# Adding the Full Access Member "office365exchangeadmins@Company.onmicrosoft.com" to the Shared MailBox!
 
 ####################################################################################################################################################
 ####################################################################################################################################################
 
 Try {
-    Add-MailboxPermission -Identity $SharedBox -User "office365exchangeadmins@Companycorp.onmicrosoft.com" -AccessRights ‘FullAccess’ -InheritanceType All -Confirm:$False -ErrorAction Stop -WarningAction SilentlyContinue | Out-Null
+    Add-MailboxPermission -Identity $SharedBox -User "office365exchangeadmins@Company.onmicrosoft.com" -AccessRights ‘FullAccess’ -InheritanceType All -Confirm:$False -ErrorAction Stop -WarningAction SilentlyContinue | Out-Null
 }
 Catch {
-    Write-Output ("Issue Adding Full Access Member `"office365exchangeadmins@Companycorp.onmicrosoft.com`" to the Shared MailBox `"$SharedBox`"")
+    Write-Output ("Issue Adding Full Access Member `"office365exchangeadmins@Company.onmicrosoft.com`" to the Shared MailBox `"$SharedBox`"")
     Write-Error -Message $_.Exception.Message
 }
 
