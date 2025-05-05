@@ -5,7 +5,7 @@ import string
 
 
 StoreNumber = '12221'
-host_name = StoreNumber + ".rtr.Company-xxx-x.com"
+host_name = StoreNumber + ".rtr.Company-x.com"
 
 
 def Ping_Router(host_name):

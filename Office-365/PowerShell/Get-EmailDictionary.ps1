@@ -1,6 +1,6 @@
 ﻿CLS
 
-$Dictionary = @{'Test Email Account' = 'testemailaccount@Company-xxx-x.com'; 'ServiceNow Test' = 'servicenow.test@Company-xxx-x.com'}
+$Dictionary = @{'Test Email Account' = 'testemailaccount@Company-x.com'; 'ServiceNow Test' = 'servicenow.test@Company-x.com'}
 
 Function Get-EmailDictionary {
     [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact='Low')]

@@ -3,7 +3,7 @@ import argparse
 import string
 import re
 
-host = "90021.rtr.Company-xxx-x.com"
+host = "90021.rtr.Company-x.com"
 
 
 def ping_host(hostname):

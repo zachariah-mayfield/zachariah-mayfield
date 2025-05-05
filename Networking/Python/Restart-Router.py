@@ -99,7 +99,7 @@ def main():
     args = parser.parse_args()
 
     # host variable takes in the StoreNumber parameter and appends the string.
-    host = args.StoreNumber + ".rtr.Company-xxx-x.com"
+    host = args.StoreNumber + ".rtr.Company-x.com"
 
     # hostname variable is set to the ping_host function.
     hostname = ping_host(host)

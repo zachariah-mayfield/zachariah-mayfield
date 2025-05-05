@@ -28,7 +28,7 @@ def getRTRDeviceID(storeNumber):
     httpVerb = 'GET'
     resourcePath = '/device/devices'
     data = ''
-    queryParams = '?filter=name:' + str(storeNumber) + '.rtr.Company-xxx-x.com&fields=id,total'
+    queryParams = '?filter=name:' + str(storeNumber) + '.rtr.Company-x.com&fields=id,total'
 
     url = 'https://' + company + '.logicmonitor.com/santaba/rest' + resourcePath + queryParams
     auth = getSignature(httpVerb, data, resourcePath)

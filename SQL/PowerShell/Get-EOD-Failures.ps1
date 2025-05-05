@@ -14,7 +14,7 @@ Get-Command invoke-sqlcmd | ForEach-Object {$_.Visibility = 'Public'}
 }#END BEGIN
 Process{
 
-# Test POS Server is "number.POS.Company-xxx-x.com" 
+# Test POS Server is "number.POS.Company-x.com" 
 # "LocalHost" is how we will call the SQL Server Instance via PS Remote.
 # Prerequisite: We will need run a (Install-Module -name SqlServer -force -confirm:$False) on all of the POS Servers inorder for this to work.
 $Server = "localhost"

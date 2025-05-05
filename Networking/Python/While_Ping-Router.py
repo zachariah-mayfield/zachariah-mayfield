@@ -49,10 +49,10 @@ def main():
     args = parser.parse_args()
 
     if args.DeviceType == 'router':
-        host = args.StoreNumber + ".rtr.Company-xxx-x.com"
+        host = args.StoreNumber + ".rtr.Company-x.com"
 
     elif args.DeviceType == 'pos':
-        host = args.StoreNumber + ".pos.Company-xxx-x.com"
+        host = args.StoreNumber + ".pos.Company-x.com"
 
     # host variable takes in the StoreNumber parameter and appends the string.
     # hostname variable is set to the ping_host function.

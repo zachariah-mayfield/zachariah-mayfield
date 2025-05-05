@@ -32,7 +32,7 @@ def get_organization_id(org_endpoint):
     organizations = get_request(org_endpoint, REQUEST_HEADERS)
     org_id = ''
     for org in organizations:
-        org_name = 'Company-xxx-x'
+        org_name = 'Company-x'
         if org['name'] == org_name:
             org_id = org['id']
             break

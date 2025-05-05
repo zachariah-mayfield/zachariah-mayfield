@@ -5,7 +5,7 @@ Function Get-Office365SharedBoxOwners {
     [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact='Low')]
     Param (
     [Parameter()]
-    [String]$SharedBox = "testemailaccount@Company-xxx-x.com"
+    [String]$SharedBox = "testemailaccount@Company-x.com"
 )
 Begin{
 # This $Global Setting will show all of the output: ($FormatEnumerationLimit=-1)
