@@ -1,5 +1,5 @@
 
-- name: 
+- name: copy cert files
   block:
     - name: Copy the TableauRMT.p12 Certificate file from the Tableau Master Node to.
       ansible.builtin.win_copy:

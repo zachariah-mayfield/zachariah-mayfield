@@ -1,4 +1,4 @@
-- name: 
+- name: service logonright_right
   block:
     - name: Stop Windows Server Service TableauResourceMonitoringTool.
       ansible.windows.win_service:

@@ -1,6 +1,6 @@
 # Original list of targeted hosts will be defined in the Main PlayBook YAML file or from a Ping Hosts results YAML file variable.
 
-- name: Creat Active_Cluster server group to target.
+- name: Create Active_Cluster server group to target.
   block:
     - name: Verify Tableau is running.
       win_shell: tsm status
