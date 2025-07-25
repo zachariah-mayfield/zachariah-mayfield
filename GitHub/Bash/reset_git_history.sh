@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Path to your repo
-REPO_PATH="/Users/zachariah-mayfield/GitHub/Main/zachariah-mayfield"
+REPO_PATH="/Path/to/your/GitHub/Repository"
 
 # Name of the new branch (e.g., 'main')
 NEW_BRANCH="main"
