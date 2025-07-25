@@ -1,0 +1,5 @@
+Windows_User_Right: SeServiceLogonRight
+
+Tableau_RMT_Service: TableauResourceMonitoringTool
+
+Tableau_RMT_Agent_Service: TableauResourceMonitoringToolAgent

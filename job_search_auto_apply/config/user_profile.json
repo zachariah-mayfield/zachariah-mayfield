@@ -1,0 +1,14 @@
+{
+    "full_name": "Zachariah Mayfield",
+    "email": "zachariah.mmayfield@outlook.com",
+    "phone": "770-862-3420",
+    "resume_path": "C:\\Users\\zachariah.mayfield\\OneDrive\\Career\\Zachariah-Mayfield_Professional_Resume.docx",
+    "linkedin_profile": "https://www.linkedin.com/in/zachariah-mayfield",
+    "github_profile": "https://github.com/zachariah-mayfield",
+    "job_preferences": {
+      "job_titles": ["DevOps", "Administrator", "Engineer"],
+      "locations": ["Remote", "Florida"],
+      "technologies": ["Python", "Ansible", "Tableau"]
+    }
+  }
+  

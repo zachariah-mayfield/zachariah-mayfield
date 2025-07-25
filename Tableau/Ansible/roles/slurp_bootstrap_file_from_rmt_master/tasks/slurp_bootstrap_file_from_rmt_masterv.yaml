@@ -1,0 +1,33 @@
+# This task block should be run on all hosts, except the Tableau RMT Master Node.
+- name: Find bootstrap_files on a Windows Server that match a regex pattern.
+  block:
+    - name: Find bootstrap_files on a Windows Server that match a regex pattern.
+      ansible.windows.win_find:
+        paths: "{{ Targeted_Folder }}"
+        patterns: "^.*\-bootstrap\.json$"
+      register: bootstrap_files
+
+    - name: Remove bootstrap_files on a Windows Server.
+      ansible.windows.win_file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ bootstrap_files.files }}"
+      when: bootstrap_files.matched > 0
+
+    - name: Check if Bootstrap Folder Exists.
+      ansible.windows.win_stat:
+        Path: "{{ item }}"
+      register: Folder_Status
+      loop: "{{ Targeted_Folder }}"
+
+    - name: Create Bootstrap Folder if Bootstrap Folder does not Exist.
+      win_file:
+        path: "{{ Targeted_Folder }}"
+        state: directory
+      when: "{{ not Folder_Status.stat.exists }}"
+
+    - name: Copy Bootstrap file onto all of the Targeted Tableau Servers.
+      win_copy:
+        dest: "{{ bootstrap_file }}"
+        content: "{{ Bootstrap_Slurped_Config_file.content | b64decode }}"
+      when: "{{ Folder_Status.stat.exists }}"      

@@ -1,0 +1,9 @@
+requests
+beautifulsoup4
+selenium
+playwright
+pydantic
+fastapi
+pydantic
+click
+flask

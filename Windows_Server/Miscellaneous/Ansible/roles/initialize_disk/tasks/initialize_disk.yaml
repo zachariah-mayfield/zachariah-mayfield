@@ -1,0 +1,47 @@
+
+- name: Gather Windows Disk Information
+  community.windows.win_disk_facts:
+
+- name: 
+  block:
+    - name: Initialize Disks with an MBR Partition style.
+      community.windows.win_initialize_disk:
+        disk_number: "{{ item.number }}"
+        style: mbr
+      #when: 'X in item.location'
+      with_items: "{{ ansible_facts.disks }}"
+      loop_control:
+        label: "Initialize Disk Number:{{ item.number }}"
+
+    - name: Initialize Disks with an MBR Partition style.
+      community.windows.win_partition:
+        drive_letter: "{{ Drive_Letter }}"
+        partition_size: "{{ Partition_Size }}" # -1
+        disk_number: "{{ item.number }}"
+      #when: 'X in item.location'
+      with_items: "{{ ansible_facts.disks }}"
+      loop_control:
+        label: "Partitioned Disk Number:{{ item.number }} on Drive Letter:{{ Drive_Letter }}"
+      register: X_Drive
+
+    - name: Formmat the Partition and Label it.
+      community.windows.win_format:
+        drive_letter: "{{ Drive_Letter }}"
+        file_system: NTFS
+        new_label: "{{ Drive_Label }}"
+        full: False
+      when: X_Drive.changed
+
+    - name: Add Full Control Rights to the Drive for User.
+      ansible.windows.win_acl:
+        path: "{{ Drive_Letter_Path }}" # X:\
+        user: "{{ hostvars['localhost'].CyberArk_UserName }}"
+        rights: FullControl
+        type: Allow
+        state: present
+        inherit: ContainerInherit, ObjectInherit
+        propagation: "None"
+      retries: 5
+      delay: 60
+      register: win_acl
+      until: win_acl is not failed

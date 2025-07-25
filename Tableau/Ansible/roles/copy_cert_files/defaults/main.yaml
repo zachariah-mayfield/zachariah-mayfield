@@ -1,0 +1,8 @@
+# "C:\\Tableau\\RMT\\Setup\\"
+# "C:\\Tableau Resource Monitoring Tool\\Master\\Config\\"
+
+TableauRMTp12_Cert_Source: "C:\\Tableau\\RMT\\Setup\\TableauRMT.p12"
+TableauRMTp12_Cert_Destination: "C:\\Tableau Resource Monitoring Tool\\Master\\Config\\TableauRMT.p12"
+
+DigiCertGlobalRootCAcrt_Cert_Source: "C:\\Tableau\\RMT\\Setup\\DigiCertGlobalRootCA.crt"
+DigiCertGlobalRootCAcrt_Cert_Destination: "C:\\Tableau Resource Monitoring Tool\\Master\\Config\\DigiCertGlobalRootCA.crt"

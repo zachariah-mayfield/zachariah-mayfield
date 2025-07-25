@@ -1,0 +1,17 @@
+
+- name: Find and remove files older than X Day(s) on a Windows Server.
+  block:
+    - name: Find files older than X Day(s) on a Windows Server using unit syntax.
+      ansible.windows.win_find:
+        paths: "{{ Folder_to_Search }}"
+        age: 5d
+        age_stamp: mtime
+      register: Files_Older_Than_X_Days
+
+    - name: Remove files on a Windows Server.
+      ansible.windows.win_file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ Files_Older_Than_X_Days.files }}"
+      when: Files_Older_Than_X_Days.matched > 0
+      

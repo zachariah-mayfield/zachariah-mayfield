@@ -1,0 +1,37 @@
+
+- name: Get AVI Pool and Select Enabled Servers
+  block:
+    - name: Connect to AVI.
+      ansible.builtin.url:
+        url: "https://{{ AVI_IP_Address }}/login"
+        validate_certs: false
+        method: POST
+        body: 
+          username: "{{ hostvars['localhost'].CyberArk_UserName }}"
+          password: "{{ hostvars['localhost'].CyberArk_Password }}"
+        body_format: json
+        headers:
+          Content-Type: application/json
+          HTTP_VERSION: "HTTP1/1"
+        return_content: true
+      register: AVI_Login_Response
+
+    - name: Get AVI Pool using the Cookie String from the AVI_Login_Response variable.
+      ansible.builtin.url:
+        url: "https://{{ AVI_IP_Address }}/api/pool?name={{ AVI_Pool_Name }}"
+        validate_certs: false
+        method: GET
+        headers:
+          Content-Type: application/json
+          HTTP_VERSION: "HTTP1/1"
+          AVI_Version: "{{ AVI_Login_Response.json.version.Version }}"
+          Cookie: "{{ AVI_Login_Response.cookies_string }}"
+        return_content: true
+        register: AVI_Pool_Response
+
+- name: Set Ansible Fact
+  ansible.builtin.set_fact:
+    AVI_Enabled_Servers: "{{ item.servers | selectattr('enabled') | map(attribute = 'hostname') | map('regex_replace', '($)', '.company-domain.com' | list }}" 
+  loop: "{{ AVI_Pool_Response.json.results }}"
+  delegate_to: localhost
+        

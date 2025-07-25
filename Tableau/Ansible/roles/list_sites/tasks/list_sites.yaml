@@ -1,0 +1,40 @@
+##
+- name: Initialize an empty list to store sites
+  ansible.builtin.set_fact:
+    sites: []
+  delegate_to: localhost
+  run_once: true
+
+- name: Reset page size and page number
+  ansible.builtin.set_fact:
+    pageSize: 1000
+    pageNumber: 1
+    has_more_pages: true
+
+- name: List sites
+  ansible.builtin.uri:
+    url: "https://{{ TableaseverName }}/api/{{ Tableau_API_Version }}/sites?pageSize={{ pageSize }}&pageNumber={{ pageNumber }}"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      X-Tableau-Auth: "{{ hostvars['localhost'].Tableau_Authentication_Token }}"
+    validate_certs: false
+    return_content: true
+    use_proxy: false
+    follow_redirects: all
+  register: sites_response
+  failed_when: sites_response.status != 200
+  until: sites_response.json.sites.site | length < pageSize
+  retries: 5
+  delay: 2
+  when: Tableau_Authentication_Token is defined
+
+- name: Append sites to the list
+  ansible.builtin.set_fact:
+    sites: "{{ sites + (sites_response.json.sites.site  | default([])) }}"
+    pageNumber: "{{ pageNumber + 1 }}"
+  delegate_to: localhost
+  run_once: true
+  when: sites_response.json.sites.site | length > 0
+  # when: sites_response.json.sites.site | length > 0 and sites_response.json.sites.site is defined 

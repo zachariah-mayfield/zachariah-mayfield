@@ -1,0 +1,70 @@
+# install_tableau_server_rmt_agent
+
+# This is the main PlayBook.yaml file to install Tableau RMT - it will call all of the other roles.
+
+
+- name: Start PlayBook and add Collections
+  hosts: localhost
+  collections: 
+    - cyberark.pas
+  # environment: 
+  tasks: 
+
+    # Ansible - port 5985 is the default port for http and 5986 is for https
+    - name: Add Windows host to the Server Group named (Windows_Servers)
+      add_host:
+        hostname: "{{ item.name }}"
+        groups: Windows_Servers
+        ansible_connection: winrm
+        ansible_winrm_transport: ntlm
+        ansible_winrm_read_timeout_sec: 180
+        ansible_port: 5985
+        ansible_user: "{{ hostvars['localhost'].CyberArk_UserName }}"
+        ansible_password: "{{ hostvars['localhost'].CyberArk_Password }}"
+      loop: "{{ Windows_Server_Names }}"
+      no_log: false
+
+# This task should be run on all hosts.
+- name: Slurp Bootstrap Config File for Tableau RMT from the Tableau RMT Master Node.
+  hosts: Windows_Servers
+  tasks: 
+  - name: Slurp Bootstrap Config File for Tableau RMT from the Tableau RMT Master Node.
+    ansible.builtin.slurp:
+      src: "{{ bootstrap_file }}"
+    delegate_to: "{{ Tableau_RMT_Master_Node }}"
+    register: Bootstrap_Slurped_Config_file
+
+- name: Tableau Server RMT Agent Setup and Install - Main Playbook.
+  hosts: Windows_Servers # | pipe this to select the Tableau RMT Agent Nodes only "excluding the Tableau RMT Master Node". | Also sort the server names in the correct order you want to add them to the Master node,
+  #environment:
+  serial: 1
+  order: inventory
+  tasks:
+    - block:
+        - name: Tableau RMT Agent Install
+          include_role: 
+            name: role_name
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:
+
+        - name: Add seservicelogonright Right
+          include_role: 
+            name: add_seservicelogonright_right
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:
+
+        - name: Copy Bootstrap File from Tableau RMT Master Node to Tableau RMT Agent Node.
+          include_role: 
+            name: role_name
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:
+
+        - name: Tableau RMT Agent Setup
+          include_role: 
+            name: rmt_agent_setup
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:

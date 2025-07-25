@@ -1,0 +1,15 @@
+      
+- name: Run PowerShell via Ansible
+  block:
+    - name: Upload Tableau Backup Files to Azure Blob Storage.
+      ansible.windows.win_powershell:
+        script: |
+          $env:AZCOPY_SPA_CLIENT_SECRET = "{{ hostvars['localhost'].CyberArk_Password }}"
+          C:\azcopy.exe login --service-principal "{{ item.Service_Principal }}" --application-id "{{ item.Application_ID }}" --tenant-id "{{ item.Tenant_ID }}"
+          $Backup_Files = @()
+          $Backup_Files += $((Get-ChildItem -path C:\Tableau\Backup\{{ ansible_fqdn }}_SettingsConfigBackup_*.json -ErrorAction Stop) | sort LastWriteTime -Descending | Select -First 1).FullName
+          $Backup_Files += $((Get-ChildItem -path C:\Tableau\Backup\"{{ ansible_fqdn }}"_RepositoryFileStoreBackup_*.tsbak -ErrorAction Stop) | sort LastWriteTime -Descending | Select -First 1).FullName
+          ForEach ($Backup_File in $Backup_Files) {C:\azcopy.exe copy $Backup_File https://"{{ item.Storage_Account }}".blob.core.windows.net/"{{ Storage_Container }}"/}
+      loop: "{{ Azure_Resource_Groups | selectattr('environment','equalto',targeted_environment) }}"
+      register: AzCopy_Output
+        

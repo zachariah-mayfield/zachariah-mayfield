@@ -1,0 +1,83 @@
+
+- name: Set Facts for Epoch Date and Time
+  block:
+    - name: Set Epoch Date
+      ansible.builtin.set_fact: 
+        Epoch_Date: "{{ ansible_date_time.date }}"
+
+    - name: Set Epoch Time
+      ansible.builtin.set_fact: 
+        Epoch_Time: "{{ ansible_date_time.time }}"
+
+    - name: Set Epoch 
+      ansible.builtin.set_fact: 
+        Epoch_Date: "{{ Epoch_Date }}_{{ Epoch_Time }}"
+
+    - name: Set Date and Time format.
+      ansible.builtin.set_fact: 
+        Current_Date_Time: "{{ ansible_date_time.iso8601 | regex_replace('[-:TZ]', '') }}"
+
+- name: Tableau Server Backup Block.
+  block:
+    - name: Log into Tableu.
+      win_shell: tsm login -s localhost -u {{ hostvars['localhost'].CyberArk_UserName }} -p "{{ hostvars['localhost'].CyberArk_Password }}"
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Login      
+
+    - name: Tableu Maintenance Cleanup.
+      win_shell: |
+          "tsm maintenance clanup -1 -t -r -q -ic --logfiles-retention 7 --http-requests-table-retention 60"
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Maintenance_Cleanup
+      failed_when: TSM_Maintenance_Cleanup.rc != 0 or TSM_Maintenance_Cleanup.stdout is not search(Tableau_Cleanup_Completed)
+      changed_when: TSM_Maintenance_Cleanup.stdout is search(Tableau_Cleanup_Completed)
+
+    - name: Tableu Settings Export.
+      win_shell: |
+          "tsm settings export -output-config-file C:\\Tableau\\Backup\\{{ ansible_fqdn }}_SettingsConfigBackup_{{ Current_Date_Time }}.json"
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Settings_Export
+      failed_when: TSM_Settings_Export.rc != 0 or TSM_Settings_Export.stdout is not search(Tableau_File_Written)
+      changed_when: TSM_Settings_Export.stdout is search(Tableau_File_Written)
+
+    - name: Tableu Maintenance Backup.
+      win_shell: |
+          "tsm maintenance backup --file C:\\Tableau\\Backup\\{{ ansible_fqdn }}_RepositoryFileStoreBackup_{{ Current_Date_Time }}"
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Maintenance_Backup
+      failed_when: TSM_Maintenance_Backup.rc != 0 or TSM_Maintenance_Backup.stdout is not search(Tableau_Backup_Written)
+      changed_when: TSM_Maintenance_Backup.stdout is search(Tableau_Backup_Written)
+
+#  rescue:
+#    - name: RESCUE - TSM Pending Changes Discard - RESCUE
+#      win_shell: tsm pending-changes discard --ignore-prompt --ignore-warnings
+#      args:
+#        executable: cmd
+#        chdir: "C:\\Tableau"
+#      register: TSM_Pending_Changes_Discard
+
+  always:
+    - name: Verify Tableau is running.
+      win_shell: tsm status
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Status
+      ignore_errors: true
+      failed_when: not TSM_Status.stdout is search(tableau_status_running) or TSM_Status.rc !=0
+      changed_when: TSM_Status.stdout is search(tableau_status_running)
+      until: TSM_Status.stdout is search(tableau_status_running) or TSM_Status.stdout is search(tableau_status_stopped)
+      retries: 10
+      delay: 5      
+
+- name: Debug - TSM Status - End of Tableau.
+  debug: 
+    msg: "Tableau Status is: {{ TSM_Status.stdout }}"

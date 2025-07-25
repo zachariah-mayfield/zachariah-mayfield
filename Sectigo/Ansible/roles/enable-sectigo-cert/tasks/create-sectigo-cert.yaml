@@ -1,0 +1,28 @@
+# This playbook is used to create a Sectigo certificate for Tableau Server using Ansible.
+- name: Enable Certificates - Block
+  block:
+    - name: tsm security external-ssl enable cert file
+      ansible.windows.win_shell: |
+        "tsm security external-ssl enable --cert-file {{ cert_dir_for_sslid }}\{{ alias_name }}.crt --key-file {{ cert_dir_for_sslid }}\{{ alias_name }}\{{ alias_name }}.rsa.key"
+      args:
+        executable: cmd
+        chdir: "{{ cert_dir_for_sslid }}\\{{ alias_name }}"
+      register: enable_cert
+      failed_when: enable_cert.rc != 0 and not enable_cert.stdout.search(cert_check_search_phrase)
+      until: enable_cert.stdout is search(cert_check_search_phrase)
+      retries: 5
+      delay: 5
+      changed_when: enable_cert.stdout is search(cert_check_search_phrase)
+
+    - name: tsm pending-changes apply
+      ansioble.windows.win_shell: |
+        "tsm pending-changes apply --ignore-prompt" --ignore-warnings"
+      args:
+        executable: cmd
+      register: apply_pending_changes
+      failed_when: apply_pending_changes.rc != 0 and not apply_pending_changes.stdout.search(pending_changes_search_phrase)
+      until: apply_pending_changes.stdout is search(pending_changes_search_phrase)
+      retries: 5
+      delay: 5
+      changed_when: apply_pending_changes.stdout is search(pending_changes_search_phrase)
+      when: enable_cert is changed  

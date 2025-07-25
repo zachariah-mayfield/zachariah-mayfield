@@ -1,0 +1,20 @@
+
+- name: Tableau RMT MMaster Setup and wait for 60 seconds to complete.
+  block:
+    - name: Tableau RMT Master Setup
+      ansible.windows.win_shell: |
+        "{{ rmtadmin.cmd master-setup --admin-username={{ hostvars['localhost'].CyberArk_UserName }} --admin-password={{ hostvars['localhost'].CyberArk_Password }} --require-https=true --https-certificate-mode=local --https-certificate-local-name={{ Tableau_RMT_Server_Certificate_Name }} --https-certificate-local-password={{ hostvars['localhost'].CyberArk_Password }} --confirm --verbose
+      args: 
+        executable: cmd
+        chdir: "{{ Tableau_RMT_Master_Location }}"
+      register: RMT_Master_Setup
+      failed_when: not RMT_Master_Setup.stdout is search(search_phrase) and RMT_Master_Setup.rc != 0
+      until: RMT_Master_Setup.stdout is search(search_phrase) or RMT_Master_Setup.stdout is search(search_phrase)
+      retries: 5
+      delay: 5
+      changed_when: RMT_Master_Setup.stdout is search(changed_search_phrase)
+
+  - name: Wait 60 Seconds for Tableau RMT Master Setup to complete.
+    pause:
+      seconds: 60
+    when: RMT_Master_Setup.stdout is search(changed_search_phrase)

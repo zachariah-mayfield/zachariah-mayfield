@@ -1,0 +1,17 @@
+CLS
+
+
+index="perf-ps" (
+host="ServerName" 
+OR 
+host="ServerName" 
+OR 
+host="ServerName" 
+OR 
+host="ServerName" 
+OR 
+host="ServerName") 
+| fields _time, host, Total_Mem, Used_Mem, Processes_MB 
+| timechart span=10s 
+avg(Used_Mem) as System_Memory_Used 
+avg(Processes_MB) as TFS_Used_MB by host

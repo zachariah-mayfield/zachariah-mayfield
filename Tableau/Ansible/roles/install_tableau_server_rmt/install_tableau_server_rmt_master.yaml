@@ -1,0 +1,72 @@
+# install_tableau_server_rmt
+
+# This is the main PlayBook.yaml file to install Tableau RMT - it will call all of the other roles.
+
+
+- name: Start PlayBook and add Collections
+  hosts: localhost
+  collections: 
+    - cyberark.pas
+  # environment: 
+  tasks: 
+
+    # Ansible - port 5985 is the default port for http and 5986 is for https
+    - name: Add Windows host to the Server Group named (Windows_Servers)
+      add_host:
+        hostname: "{{ item.name }}"
+        groups: Windows_Servers
+        ansible_connection: winrm
+        ansible_winrm_transport: ntlm
+        ansible_winrm_read_timeout_sec: 180
+        ansible_port: 5985
+        ansible_user: "{{ hostvars['localhost'].CyberArk_UserName }}"
+        ansible_password: "{{ hostvars['localhost'].CyberArk_Password }}"
+      loop: "{{ Windows_Server_Names }}"
+      no_log: false
+
+- name: Tableau Server RMT MMaster Setup and Install - Main Playbook.
+  hosts: Windows_Servers # | pipe this to select the Tableau RMT Master Node.
+  #environment:
+  tasks:
+    - block:
+        - name: Tableau RMT Master Install
+          include_role: 
+            name: role_name
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:
+
+        - name: Add seservicelogonright Right
+          include_role: 
+            name: add_seservicelogonright_right
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:
+
+        - name: Copy Cert Files
+          include_role: 
+            name: copy_cert_files
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:
+
+        - name: Tableau RMT Master Setup
+          include_role: 
+            name: rmt_master_setup
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:
+
+        - name: Create Tableau Server RMT Environment
+          include_role: 
+            name: create_tableau_server_rmt_environment
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:
+
+        - name: Generate Tableau RMT Bootstrap File
+          include_role: 
+            name: generate_bootstrap_file
+            tasks_from: location_of_tasks
+            defaults_from: location_of_defaults
+          #when:

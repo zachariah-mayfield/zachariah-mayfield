@@ -1,0 +1,40 @@
+##
+- name: Initialize an empty list to store workbooks
+  ansible.builtin.set_fact:
+    workbooks: []
+  delegate_to: localhost
+  run_once: true
+
+- name: Reset page size and page number
+  ansible.builtin.set_fact:
+    pageSize: 1000
+    pageNumber: 1
+    has_more_pages: true
+
+- name: List workbooks
+  ansible.builtin.uri:
+    url: "https://{{ TableauServerName }}/api/{{ Tableau_API_Version }}/sites/{{ Tableau_Site_ID }}/workbooks?pageSize={{ pageSize }}&pageNumber={{ pageNumber }}"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      X-Tableau-Auth: "{{ hostvars['localhost'].Tableau_Authentication_Token }}"
+    validate_certs: false
+    return_content: true
+    use_proxy: false
+    follow_redirects: all
+  register: workbooks_response
+  failed_when: workbooks_response.status != 200
+  until: workbooks_response.json.workbooks.workbook | length < pageSize
+  retries: 5
+  delay: 2
+  when: Tableau_Authentication_Token is defined
+
+- name: Append workbooks to the list
+  ansible.builtin.set_fact:
+    workbooks: "{{ workbooks + (workbooks_response.json.workbooks.workbook  | default([])) }}"
+    pageNumber: "{{ pageNumber + 1 }}"
+  delegate_to: localhost
+  run_once: true
+  when: workbooks_response.json.workbooks.workbook | length > 0
+  # when: workbooks_response.json.workbooks.workbook | length > 0 and workbooks_response.json.workbooks.workbook is defined 

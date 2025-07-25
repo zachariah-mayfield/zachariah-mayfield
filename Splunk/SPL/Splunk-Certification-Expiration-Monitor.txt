@@ -1,0 +1,10 @@
+index=wineventlog source=wineventlog:Company* Type=Warning SourceName=Certification_Monitor EventCode=7777 Message!="System.Collections.*" 
+| rex field=Message "(?<cert_expire_message>.+)" 
+| rex field=Message "Certificate Serial Number: (?<cert_serial_number>.+)" 
+| rex field=Message "Certificate Special Renewal Process: (?<Cert_Special_Renewal_Process>.+)" 
+| rex field=Message "Certificate Name: (?<cert_name>.+)" 
+| rex field=Message "Certificate Location: (?<cert_location>.+)" 
+| rex field=Message "Certificate Subject Alternative Name\(s\): (?<cert_alternative_names>.+)" 
+| rex field=Message "Certificate Creation Date: (?<cert_create_date>.+)" 
+| rex field=Message "Certificate Expires on: (?<cert_expires_on>.+)" 
+| table _time host source cert_name host cert_expires_on cert_create_date cert_serial_number Cert_Special_Renewal_Process cert_expire_message cert_location cert_alternative_names

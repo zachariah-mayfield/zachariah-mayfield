@@ -1,0 +1,290 @@
+# Dependencies
+# pip
+# pip3
+# python3-pip
+# openssl
+# https://pypi.org/project/pyOpenSSL/#files
+
+- name: Create Certificates - Block
+  block:
+    - name: Remove whl folder
+      file:
+        path: /tmp/whl
+        state: absent
+    
+    - mame: Copy .whl files
+      copy:
+        src: whl
+        dest: /tmp
+
+    - name: Find all whl files
+      find:
+        paths: /tmp/whl
+        file_type: file
+      register: whl_files
+
+# Install Python dependencies using pip
+    - name: Install Dependencies
+      pip:
+        name: "{{ whl_files.files | map(attribute='path') | list }}"  # List of Python wheel file paths to install
+        executable: pip3  
+        state: present  
+
+# Create a temporary directory for storing artifacts during build
+    - name: Create temporary build directory
+      tempfile:
+        state: directory  
+        suffix: "artificats"  # Suffix added to the directory name to help identify it
+      register: temp_build_dir  # Saves details about the created temporary directory (like its full path)
+
+    - name: Set role facts
+      set_fact:
+        sans: "{{ alias_name }}, {{ hostnames }}, | join(',') }}"
+        cert_artifacts_dir_path: "{{ temp_build_dir.path }}"
+        certificate_file_name: "{{ certificate_file_name }}"
+        privatekey_file_name: "{{ privatekey_file_name }}"
+        root_ca_name: "{{ root_ca_name }}"
+        intermediate_ca_name: "{{ intermediate_ca_name }}"
+        pkcs12_file_name: "{{ pkcs12_file_name }}"
+        jks_file_name: "{{ jks_file_name }}"
+        csr_file_name: "{{ csr_file_name }}"
+        enroll_data_file_name: "{{ enroll_data_file_name }}"
+        sslid_file_name: "{{ sslid_file_name }}"
+        password_file_name: "{{ password_file_name }}"
+
+# Dynamically construct a Subject Alternative Names (SANs) string
+    - name: Create SANs from domain names
+      set_fact:
+        sans: "{{ sans }},{{ item[0] }}.{{ item[1] }}"  # Append "hostname.domain" pairs to the 'sans' variable
+      with_nested:
+        - "{{ [alias_name] + hostnames }}"  # First list: the alias_name followed by additional hostnames
+        - "{{ domain_names }}"  # Second list: list of domain names
+      # This loops over all combinations of hostnames and domains (Cartesian product),
+      # appending them to the `sans` variable in the format: "hostname.domain"
+
+# Generate a random but idempotent password for encrypting the private key
+# The password is idempotent because it uses the hostname as a seed, so it’s repeatable on the same host
+    - name: Create random but idempotent password
+      set_fact:
+        key_password: '{{ lookup("password", "/dev/null seed=ansible_hostname") }}'
+      when: key_password is undefined  # Only generate a password if it's not already set
+
+# Ensure a file exists to store the password
+    - name: Touch password file
+      file: 
+        path: "{{ cert_artifacts_dir_path }}/{{ password_file_name }}" 
+        state: touch   
+
+# Write the generated password to the file
+    - name: Write password to file
+      lineinfile:
+        path: "{{ cert_artifacts_dir_path }}/{{ password_file_name }}"  
+        line: "{{ key_password }}"  # The password to write to the file
+
+# Generate an OpenSSL private key
+    - name: Generate an OpenSSL private key
+      openssl_privatekey:
+        path: "{{ cert_artifacts_dir_path }}/{{ privatekey_file_name }}"  # File path to save the private key
+        passphrase: "{{ key_password }}"  # Passphrase to encrypt the private key
+        cipher: auto  # Automatically chooses the best cipher for encryption
+        size: 2048  # Key size in bits (2048 is standard for RSA)
+        type: RSA  # Key algorithm type
+
+# Generate a Certificate Signing Request (CSR) using the private key
+    - name: Generate an OpenSSL Certificate Signing Request
+      openssl_csr:
+        path: "{{ cert_artifacts_dir_path }}/{{ csr_file_name }}"  # Destination path to save the CSR
+        privatekey_path: "{{ cert_artifacts_dir_path }}/{{ privatekey_file_name }}"  # Path to the private key file
+        private_passphrase: "{{ key_password }}"  # Passphrase used to unlock the private key
+        common_name: "{{ alias_name }}"  # CN (server’s domain name)
+        state_or_province_name: "{{ dn_ST }}"  # State or Province field in the CSR
+        locality_name: "{{ dn_L }}"  # City or locality
+        organization_name: "{{ dn_O }}"  # Organization name
+        organizational_unit_name: "{{ dn_OU }}"  # Organizational unit (e.g., department)
+        country_name: "{{ dn_C }}"  # Country code (2-letter ISO)
+        emailAddress: "{{ email_address }}"  # Contact email address
+        keyUsage: [digitalSignature, keyEncipherment]  # Specifies intended key usage
+        extendedKeyUsage: [serverAuth, clientAuth]  # Specifies extended purposes (e.g., server/client auth)
+        basicConstraints: "CA:FALSE"  # Specifies that this is not a CA certificate
+      vars:
+        ansible_python_interpreter: /usr/bin/python3  # Ensure correct Python version is used for cryptographic tasks
+
+# Match Windows-style line endings (CRLF) and Replace with Unix-style line endings (LF)
+    - name: Replace line endings with escaped newline characters
+      replace:
+        path: "{{ cert_artifacts_dir_path }}/{{ csr_file_name }}"
+        regexp: '\r{0,1}\n'  # Match Windows-style line endings (CRLF)
+        replace: '\\n'  # Replace with Unix-style line endings (LF)
+
+# Read the contents of the CSR file (in binary form, base64-encoded)
+    - name: Slurp CSR file
+      slurp:
+        src: "{{ cert_artifacts_dir_path }}/{{ csr_file_name }}"  # Path to the CSR file
+      register: csr_file_slurp_result  # Store the base64-encoded result
+
+# Decode the base64-encoded CSR into plain text
+    - name: Create CSR string
+      set_fact:
+        csr_out: "{{ csr_file_slurp_result.content | b64decode }}"  # Decode and store the actual PEM content of the CSR
+      when: csr_file_slurp_result is defined  
+
+# Render a JSON file for CSR enrollment using a Jinja2 template
+    - name: Template json data for CSR enroll
+      template:
+        src: data.json.j2  # Source Jinja2 template file
+        dest: "{{ cert_artifacts_dir_path }}/{{ enroll_data_file_name }}"  # Destination JSON file for API submission
+      register: data_json_template 
+
+# Enroll a Certificate Signing Request (CSR) with Sectigo via API
+    - name: Enroll CSR
+      uri:
+        url: "{{ sectigo_api_url }}/ssl/v1/enroll"  # REST API endpoint to submit a CSR for certificate enrollment
+        method: POST  
+        headers: 
+          Content-Type: application/json  
+          customerUri: "{{ Company-Domain }}"  
+          login: "{{ sectigo_login }}"  
+          password: "{{ sectigo_password }}"  
+        src: "{{ cert_artifacts_dir_path }}/{{ enroll_data_file_name }}" 
+        remote_src: true  
+      register: enroll_csr_result  
+      environment:  
+        HTTP_PROXY: "{{ proxy.http }}"  
+        HTTPS_PROXY: "{{ proxy.https }}" 
+        NO_PROXY: "{{ proxy.no_proxy }}"  
+
+    - name: Create sslid fact
+      set_fact:
+        sslid: "{{ enroll_csr_result.json.sslid }}"
+
+    - name: Touch sslid file
+      file:
+        path: "{{ cert_artifacts_dir_path }}/{{ sslid_file_name }}"
+        state: touch
+      register: sslid_file_result
+
+    - name: Add sslid to sslid file
+      lineinfile:
+        path: "{{ cert_artifacts_dir_path }}/{{ sslid_file_name }}"
+        line: "{{ sslid }}"
+
+# Ensures the file exists; creates it if not, or updates its modification time if it does exist, where the PEM certificate will be saved
+    - name: Touch x509CO certificate PEM file
+      file:
+        path: "{{ cert_artifacts_dir_path }}/{{ certificate_file_name }}" 
+        state: touch 
+
+# Retrieve the x509CO certificate from the Sectigo API and save it to the previously touched file
+    - name: Get x509CO certificate PEM file
+      uri:
+        url: "{{ sectigo_api_url }}/ssl/v1/collect/{{ sslid }}/x509CO"
+        method: GET
+        headers:
+          Content-Type: application/json
+          customerUri: "{{ Company-Domain }}"
+          login: "{{ sectigo_login }}"
+          password: "{{ sectigo_password }}"
+        dest: "{{ cert_artifacts_dir_path }}/{{ certificate_file_name }}"
+        remote_src: true
+      register: pem_request
+      until: pem_request is not failed
+      retries: 20
+      delay: 30
+      environment:
+        HTTP_PROXY: "{{ proxy.http }}"
+        HTTPS_PROXY: "{{ proxy.https }}"
+        NO_PROXY: "{{ proxy.no_proxy }}"
+
+# Ensures the file exists; creates it if not, or updates its modification time if it does exist, where the root CA certificate will be saved
+    - name: Touch root CA file
+      file:
+        path: "{{ cert_artifacts_dir_path }}/{{ root_ca_name }}" 
+        state: touch 
+
+    - name: Get X509IOR root CA file
+      uri:
+        url: "{{ sectigo_api_url }}/ssl/v1/collect/{{ sslid }}/X509IO"
+        method: GET
+        headers:
+          Content-Type: application/json
+          customerUri: "{{ Company-Domain }}"
+          login: "{{ sectigo_login }}"
+          password: "{{ sectigo_password }}"
+        dest: "{{ cert_artifacts_dir_path }}/{{ root_ca_name }}"
+        remote_src: true
+      register: pem_request
+      until: pem_request is not failed
+      retries: 20
+      delay: 30
+      environment:
+        HTTP_PROXY: "{{ proxy.http }}"
+        HTTPS_PROXY: "{{ proxy.https }}"
+        NO_PROXY: "{{ proxy.no_proxy }}"
+
+    - name: Touch intermediate CA file
+      file:
+        path: "{{ cert_artifacts_dir_path }}/{{ intermediate_ca_name }}" 
+        state: touch 
+
+    - name: Get X509IOR intermediate CA file
+      uri:
+        url: "{{ sectigo_api_url }}/ssl/v1/collect/{{ sslid }}/X509IOR"
+        method: GET
+        headers:
+          Content-Type: application/json
+          customerUri: "{{ Company-Domain }}"
+          login: "{{ sectigo_login }}"
+          password: "{{ sectigo_password }}"
+        dest: "{{ cert_artifacts_dir_path }}/{{ intermediate_ca_name }}"
+      environment:
+        HTTP_PROXY: "{{ proxy.http }}"
+        HTTPS_PROXY: "{{ proxy.https }}"
+        NO_PROXY: "{{ proxy.no_proxy }}"
+      
+    - name: Create PKCS12 Certificate
+      openssl_pkcs12:
+        action: export
+        path: "{{ cert_artifacts_dir_path }}/{{ pkcs12_file_name }}"
+        passphrase: "{{ key_password }}"
+        privatekey_passphrase: "{{ key_password }}"
+        certificate_path: "{{ cert_artifacts_dir_path }}/{{ certificate_file_name }}"
+        privatekey_path: "{{ cert_artifacts_dir_path }}/{{ privatekey_file_name }}"
+        friendly_name: "{{ alias_name }}"
+        other_certificates: "{{ cert_artifacts_dir_path }}/{{ intermediate_ca_name }}"
+        state: present
+
+    - name: Create Java Key Store
+      java_cert:
+        keystore_path: "{{ cert_artifacts_dir_path }}/{{ jks_file_name }}"
+        keystore_type: "JKS"
+        keystore_pass: "{{ key_password }}"
+        keystore_create: true
+        cert_alias: "{{ alias_name }}"
+        pkcs12_path: "{{ cert_artifacts_dir_path }}/{{ pkcs12_file_name }}"
+        pkcs12_alias: "{{ alias_name }}"
+        pkcs12_password: "{{ key_password }}"
+        state: present
+
+    - name: Import root CA Cert
+      java_cert:
+        cert_path: "{{ cert_artifacts_dir_path }}/{{ root_ca_name }}"
+        keystore_path: "{{ cert_artifacts_dir_path }}/{{ jks_file_name }}"
+        keystore_pass: "{{ key_password }}"
+        cert_alias: "{{ alias_name }}"
+        state: present
+
+    - name: Unencrypt private key
+      command:
+        cmd: "openssl rsa -in {{ cert_artifacts_dir_path }}/{{ privatekey_file_name }} -out {{ cert_artifacts_dir_path }}/{{ unencrypted_privatekey_file_name }} -passin pass:{{ key_password }}"
+      when: should_unencrypt_private_key
+
+    - name: Copy temp artifacts folder
+      copy: 
+        dest: "{{ destination_folder }}"
+        src: "{{ cert_artifacts_dir_path }}/"
+        remote_src: true
+
+    - name: Remove temp directory
+      file:
+        path: "{{ cert_artifacts_dir_path }}"
+        state: absent

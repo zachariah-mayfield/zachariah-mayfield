@@ -1,0 +1,41 @@
+
+- name: Tableau Server Pending Changes Apply.
+  block:
+    - name: Log into Tableu.
+      win_shell: tsm login -s localhost -u {{ hostvars['localhost'].CyberArk_UserName }} -p "{{ hostvars['localhost'].CyberArk_Password }}"
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Login      
+
+    - name: Tableu Server Pending Changes Apply.
+      win_shell: tsm pending-changes apply --ignore-prompt --ignore-warnings
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_vizqlserver    
+
+  rescue:
+    - name: RESCUE - TSM Pending Changes Discard - RESCUE
+      win_shell: tsm pending-changes discard --ignore-prompt --ignore-warnings
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Pending_Changes_Discard
+
+  always:
+    - name: Verify Tableau is running.
+      win_shell: tsm status
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Status
+      ignore_errors: true
+      failed_when: not TSM_Status.stdout is search(tableau_status_running) or TSM_Status.rc !=0
+      changed_when: TSM_Status.stdout is search(tableau_status_running)
+      until: TSM_Status.stdout is search(tableau_status_running) or TSM_Status.stdout is search(tableau_status_stopped)
+      retries: 10
+      delay: 60      
+
+- name: Debug - TSM Status - End of Tableau Dynamic Topology.
+  debug: msg="Tableau Status is: {{ TSM_Status.stdout }}"

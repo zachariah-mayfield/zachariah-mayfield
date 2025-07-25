@@ -1,0 +1,19 @@
+username: "{{ hostvars['localhost'].CyberArk_UserName }}"
+password: "{{ hostvars['localhost'].CyberArk_Password }}"
+
+Tableau_RMT_Master_Location: "C:\\Tableau Resource Monitoring Tool\\Master\\"
+
+search_phrase: "Skipping admin user creation - users already exist"
+users_already_exist: "users already exist"
+changed_search_phrase: "Setup complete"
+
+Postgres_Repository_Server: "tableau-Your_Company_Postgres_SQL_Server_Name-psqlflexibleserver.postgres.database.azure.com"
+
+Server_Description: "Your-Tableau-RMT-Master-Node-Description"
+Tableau_RMT_Agent_Location: "C:\\Tableau Resource Monitoring Tool\\Agent\\"
+Tableau_RMT_Server_Bootstrap_Location: "C:\\Tableau\\Config\\TableauRMT-bootstrap.json"
+
+
+agent_already_registered: "An agent is already registered for this environment server"
+users_already_exist: "users already exist"
+successfully_registered_agent: "Successfully registered the agent"

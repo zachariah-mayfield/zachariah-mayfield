@@ -1,0 +1,40 @@
+- name: service logonright_right
+  block:
+    - name: Stop Windows Server Service TableauResourceMonitoringTool.
+      ansible.windows.win_service:
+        name: "{{ Tableau_RMT_Service }}"
+        state: stopped
+
+    - name: Stop Windows Server Service TableauResourceMonitoringToolAgent.
+      ansible.windows.win_service:
+        name: "{{ Tableau_RMT_Agent_Service }}"
+        state: stopped
+
+ # Open the 'Administrative Tools' -> 'Local Security Policy' -> 'Local Policy' -> 'User Rights Assignment' -> 'Log on as a Service' -> 'properties' -> 'Add user or Group' -> add the new user.
+    - name: Add account to Log-on-as-a-service in Windows Server Group Policy.
+      ansible.windows.win_user_right:
+        name: "{{ Tableau_RMT_Agent_Service }}"
+        users:
+          - "{{ hostvars['localhost'].CyberArk_UserName }}"
+        action: add
+
+    - name: Add domain account to Log-on-as-a-service in Windows Server Group Policy.
+      ansible.windows.win_user_righ:
+        name: "{{ Tableau_RMT_Agent_Service }}"
+        users:
+          - "Company-Domain\\{{ hostvars['localhost'].CyberArk_UserName }}"
+        action: add        
+
+    - name: Start Windows Server Service TableauResourceMonitoringTool.
+      ansible.windows.win_service:
+        name: "{{ Tableau_RMT_Service }}"
+        username: "{{ hostvars['localhost'].CyberArk_UserName }}"
+        password: "{{ hostvars['localhost'].CyberArk_Password }}"
+        state: started
+
+    - name: Start Windows Server Service TableauResourceMonitoringToolAgent.
+      ansible.windows.win_service:
+        name: "{{ Tableau_RMT_Agent_Service }}"
+        username: "{{ hostvars['localhost'].CyberArk_UserName }}"
+        password: "{{ hostvars['localhost'].CyberArk_Password }}"
+        state: started

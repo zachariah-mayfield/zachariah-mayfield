@@ -1,0 +1,17 @@
+
+- name: copy cert files
+  block:
+    - name: Copy the TableauRMT.p12 Certificate file from the Tableau Master Node to.
+      ansible.builtin.win_copy:
+        src: "{{ TableauRMTp12_Cert_Source }}"
+        dest: "{{ TableauRMTp12_Cert_Destination }}"
+        remote_src: yes
+      register: TableauRMTp12_Copy
+
+    - name: Copy the DigiCertGlobalRootCA.crt Certificate file from the Tableau Master Node to.
+      ansible.builtin.win_copy:
+        src: "{{ DigiCertGlobalRootCAcrt_Cert_Source }}"
+        dest: "{{ DigiCertGlobalRootCAcrt_Cert_Destination }}"
+        remote_src: yes
+      register: DigiCertGlobalRootCAcrt_Copy
+      

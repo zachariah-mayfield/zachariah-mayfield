@@ -1,0 +1,29 @@
+- name: Get ALL of the Tableau Sites.
+  block:
+    - name: Get ALL of the Tableau Sites.
+      ansible.builtin.url:
+        url: "https://{{ TableauServerName }}/api/{{ Tableau_API_Version }}/sites"
+        method: GET
+        headers: 
+          Content-Type: application/json
+          Accept: application/json
+          X-Tableau-Auth: "{{ hostvars['localhost'].Tableau_Authentication_Token }}"
+          #HTTP_VERSION: "HTTP1/1"
+        #body: 
+          #credentials:
+            #username: "{{ hostvars['localhost'].CyberArk_UserName }}"
+            #password: "{{ hostvars['localhost'].CyberArk_Password }}"
+        #body_format: json
+        validate_certs: false
+        return_content: true
+      register: Tableau_Sites_Response
+      failed_when: Tableau_Sites_Response.status !=200
+
+    - name: Set Ansible Fact Tableau Sites Fact(s).
+      ansible.builtin.set_fact:
+        Tableau_Sites: "{{ Tableau_Sites_Response.json.sites.site }}"
+        Tableau_Site_Info: "{{ Tableau_Sites_Response.json.sites.site | selectattr('name', 'search', 'Tableau-Company-Site-Name' }}"
+        Tableau_Site_Name: "{{ (Tableau_Sites_Response.json.sites.site | selectattr('name', 'search', 'Tableau-Company-Site-Name' | first).name }}"
+        Tableau_Site_ID: "{{ (Tableau_Sites_Response.json.sites.site | selectattr('name', 'search', 'Tableau-Company-Site-Name' | first).id }}"
+      delegate_to: localhost
+      run_once: true

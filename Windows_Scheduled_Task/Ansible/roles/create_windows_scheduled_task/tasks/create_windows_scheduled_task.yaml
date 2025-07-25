@@ -1,0 +1,28 @@
+
+- name: 
+  block:
+    - name: Create Windows Scheduled Task
+      win_scheduled_task: 
+        name: "Ansible-Example"
+        description: "Ansible-Example"
+        actions: 
+        - path: "C:/path/to/run/EXE_Name.exe"
+          working_directory: "C:/path/to/run"
+        username: "{{ hostvars['localhost'][CyberArk_UserName] }}" # "{{ CyberArk_UserName }}" # "{{ hostvars['localhost'][item.json.UserName] }}" # This may need to be seperated before it can become a Global Varriable. Wrote this from memory.
+        password: "{{ hostvars['localhost'][CyberArk_Content] }}" # "{{ CyberArk_Password }}" # "{{ hostvars['localhost'][item.json.Content] }}" # This may need to be seperated before it can become a Global Varriable. Wrote this from memory.
+        logon_type: password
+        state: present
+        run_level: highest
+        enabled: yes
+
+  - name: Run Windows Scheduled Task - Ansible-Example.
+    win_command: schtasks.exe /RUN /TN "Ansible-Example"
+    delay: 5
+
+  - name: Wait for Windows Scheduled Task to complete.
+    win_scheduled_task_stat:
+      name: "Ansible-Example"
+    register: Windows_Scheduled_Task_Stat
+    until: (Windows_Scheduled_Task_Stat.state is defined and Windows_Scheduled_Task_Stat.status != "TASK_STATE_RUNNING) OR (Windows_Scheduled_Task_Stat.task_exists == False)
+    retries: 25
+    delay: 60

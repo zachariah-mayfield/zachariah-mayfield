@@ -1,0 +1,29 @@
+- name: Get ALL of the Tableau Groups for a Site.
+  block:
+    - name: Get ALL of the Tableau Groups for a Site.
+      ansible.builtin.url:
+        url: "https://{{ TableauServerName }}/api/{{ Tableau_API_Version }}/sites/{{ Tableau_Site_ID }}/groups"
+        method: GET
+        headers: 
+          Content-Type: application/json
+          Accept: application/json
+          X-Tableau-Auth: "{{ hostvars['localhost'].Tableau_Authentication_Token }}"
+          #HTTP_VERSION: "HTTP1/1"
+        #body: 
+          #credentials:
+            #username: "{{ hostvars['localhost'].CyberArk_UserName }}"
+            #password: "{{ hostvars['localhost'].CyberArk_Password }}"
+        #body_format: json
+        validate_certs: false
+        return_content: true
+      register: Tableau_Groups_Response
+      failed_when: Tableau_Groups_Response.status !=200
+
+    - name: Set Ansible Fact Tableau Groups Fact(s).
+      ansible.builtin.set_fact:
+        Tableau_Groups: "{{ Tableau_Groups_Response.json.groups.group }}"
+        Tableau_Group_Info: "{{ Tableau_Groups_Response.json.groups.group | selectattr('name', 'search', 'Tableau-Company-Group-Name' }}"
+        Tableau_Group_Name: "{{ (Tableau_Groups_Response.json.groups.group | selectattr('name', 'search', 'Tableau-Company-Group-Name' | first).name }}"
+        Tableau_Group_ID: "{{ (Tableau_Groups_Response.json.groups.group | selectattr('name', 'search', 'Tableau-Company-Group-Name' | first).id }}"
+      delegate_to: localhost
+      run_once: true

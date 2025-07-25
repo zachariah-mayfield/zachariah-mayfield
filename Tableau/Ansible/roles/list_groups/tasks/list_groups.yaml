@@ -1,0 +1,40 @@
+##
+- name: Initialize an empty list to store groups
+  ansible.builtin.set_fact:
+    groups: []
+  delegate_to: localhost
+  run_once: true
+
+- name: Reset page size and page number
+  ansible.builtin.set_fact:
+    pageSize: 1000
+    pageNumber: 1
+    has_more_pages: true
+
+- name: List groups
+  ansible.builtin.uri:
+    url: "https://{{ TableauServerName }}/api/{{ Tableau_API_Version }}/sites/{{ Tableau_Site_ID }}/groups?pageSize={{ pageSize }}&pageNumber={{ pageNumber }}"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      X-Tableau-Auth: "{{ hostvars['localhost'].Tableau_Authentication_Token }}"
+    validate_certs: false
+    return_content: true
+    use_proxy: false
+    follow_redirects: all
+  register: groups_response
+  failed_when: groups_response.status != 200
+  until: groups_response.json.groups.group | length < pageSize
+  retries: 5
+  delay: 2
+  when: Tableau_Authentication_Token is defined
+
+- name: Append groups to the list
+  ansible.builtin.set_fact:
+    groups: "{{ groups + (groups_response.json.groups.group  | default([])) }}"
+    pageNumber: "{{ pageNumber + 1 }}"
+  delegate_to: localhost
+  run_once: true
+  when: groups_response.json.groups.group | length > 0
+  # when: groups_response.json.groups.group | length > 0 and groups_response.json.groups.group is defined 

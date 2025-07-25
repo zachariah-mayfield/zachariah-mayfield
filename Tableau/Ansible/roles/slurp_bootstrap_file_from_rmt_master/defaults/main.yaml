@@ -1,0 +1,5 @@
+Tableau_RMT_Master_Node: "Your-Tableau-RMT-Master-Node"
+
+Targeted_Folder: "C:\\Tableau\\"
+
+bootstrap_file: "C:\\Tableau\\Tableau-RMT-bootstrap.json"

@@ -1,0 +1,13 @@
+
+- name: NsLookUP 
+  block:
+    - name: NsLookUP
+      shell: |
+        nslookup google.com
+      register: nslookup_output
+
+    - name: Set Ansible Fact
+      ansible.builtin.set_fact:
+        Canonical_Name: "{{ nslookup_output.stdout | regex_search('Canonical name = (.*?))\\.\\nNamme:', '\\1') }}"
+      delegate_tp: localhost
+      run_once: true

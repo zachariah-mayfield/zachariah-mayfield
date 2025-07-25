@@ -1,0 +1,5 @@
+Build
+| where OrganizationName == "Company" and ProjectName == "System.Services"
+| where RequestedForUniqueName in ("Billy@Company.com","Goat@Company.com")
+| project OrganizationName, ProjectName, ProjectId, DefinitionId, DefinitionName, DefinitionPath
+| distinct *

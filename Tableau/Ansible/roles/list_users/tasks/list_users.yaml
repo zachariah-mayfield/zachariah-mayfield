@@ -1,0 +1,40 @@
+##
+- name: Initialize an empty list to store users
+  ansible.builtin.set_fact:
+    users: []
+  delegate_to: localhost
+  run_once: true
+
+- name: Reset page size and page number
+  ansible.builtin.set_fact:
+    pageSize: 1000
+    pageNumber: 1
+    has_more_pages: true
+
+- name: List users
+  ansible.builtin.uri:
+    url: "https://{{ TableauServerName }}/api/{{ Tableau_API_Version }}/sites/{{ Tableau_Site_ID }}/groups/{{ Tableau_Group_ID }}/users?pageSize={{ pageSize }}&pageNumber={{ pageNumber }}"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+      X-Tableau-Auth: "{{ hostvars['localhost'].Tableau_Authentication_Token }}"
+    validate_certs: false
+    return_content: true
+    use_proxy: false
+    follow_redirects: all
+  register: users_response
+  failed_when: users_response.status != 200
+  until: users_response.json.users.user | length < pageSize
+  retries: 5
+  delay: 2
+  when: Tableau_Authentication_Token is defined
+
+- name: Append users to the list
+  ansible.builtin.set_fact:
+    users: "{{ users + (users_response.json.users.user  | default([])) }}"
+    pageNumber: "{{ pageNumber + 1 }}"
+  delegate_to: localhost
+  run_once: true
+  when: users_response.json.users.user | length > 0
+  # when: users_response.json.users.user | length > 0 and users_response.json.users.user is defined 

@@ -1,0 +1,17 @@
+##
+JSON_BODY:
+  permissions:
+    granteeCapabilities:
+      - capabilities:
+        capability:
+          - name: "Read"
+            mode: "Allow"
+          - name: "Write"
+            mode: "Allow"
+        group:
+          id: "{{ Group_ID }}"
+    project:
+      id: "{{ Project_ID }}"
+      name: "{{ Project_Name }}"
+      owner:
+        id: "{{ Owner_ID }}"

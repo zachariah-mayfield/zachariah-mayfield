@@ -1,0 +1,12 @@
+username: "{{ hostvars['localhost'].CyberArk_UserName }}"
+password: "{{ hostvars['localhost'].CyberArk_Password }}"
+
+Tableau_RMT_Master_Location: "C:\\Tableau Resource Monitoring Tool\\Master\\"
+Tableau_RMT_Server_Certificate_Location: "C:\\Tableau\\Config\\TableauRMT"
+Tableau_RMT_Server_Certificate_Name: "TableauRMT"
+
+search_phrase: "Skipping admin user creation - users already exist"
+users_already_exist: "users already exist"
+changed_search_phrase: "Setup complete"
+
+Postgres_Repository_Server: "tableau-Your_Company_Postgres_SQL_Server_Name-psqlflexibleserver.postgres.database.azure.com"

@@ -1,0 +1,47 @@
+
+
+- name: Find bootstrap_files on a Windows Server that match a regex pattern.
+  block:
+    - name: Check if Bootstrap Folder Exists.
+      ansible.windows.win_stat:
+        Path: "{{ item }}"
+      register: Folder_Status
+      loop: "{{ Targeted_Folder }}"
+
+    - name: Create Bootstrap Folder if Bootstrap Folder does not Exist.
+      win_file:
+        path: "{{ Targeted_Folder }}"
+        state: directory
+      when: not Folder_Status.stat.exists  
+  
+    - name: Find bootstrap_files on a Windows Server that match a regex pattern.
+      ansible.windows.win_find:
+        paths: "{{ Targeted_Folder }}"
+        patterns: "^.*\-bootstrap\.json$"
+      register: bootstrap_files
+
+    - name: Remove bootstrap_files on a Windows Server.
+      ansible.windows.win_file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ bootstrap_files.files }}"
+      when: bootstrap_files.matched > 0
+
+    - name: Check for existing RMT environments.
+      ansible.windows.win_shell: |
+        "rmtadmin.cmd environments --verbose"
+      args:
+        executable: cmd
+        chdir: "{{ RMT_Admin_Master_Path}} "
+      register: RMT_Environments
+      when: bootstrap_files.matched > 0
+
+    - name: Generate a Tableau RMT Bootstrap File
+      ansible.windows.win_shell: |
+        "rmtadmin.cmd bootstrap-file --env={{ Tableau_RMT_Environmant_Name }} --filename {{ bootstrap_file }} --force --verbose"
+      args:
+        executable: cmd
+        chdir: "{{ RMT_Admin_Master_Path}} "
+      register: RMT_Environments
+      when: RMT_Environments.stdout is search(Tableau_RMT_Environmant_Name)
+

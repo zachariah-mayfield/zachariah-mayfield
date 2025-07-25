@@ -1,0 +1,21 @@
+
+- name: Start PlayBook and add Collections
+  hosts: localhost
+  collections: 
+    - cyberark.pas
+  # environment: 
+  tasks: 
+
+# Ansible - port 5985 is the default port for http and 5986 is for https
+- name: Add Windows host to the Server Group named (Windows_Servers)
+  add_host:
+    hostname: "{{ item.name }}"
+    groups: Windows_Servers
+    ansible_connection: winrm
+    ansible_winrm_transport: ntlm
+    ansible_winrm_read_timeout_sec: 180
+    ansible_port: 5985
+    ansible_user: "{{ hostvars['localhost'].CyberArk_UserName }}"
+    ansible_password: "{{ hostvars['localhost'].CyberArk_Password }}"
+  loop: "{{ Windows_Server_Names }}"
+  no_log: false

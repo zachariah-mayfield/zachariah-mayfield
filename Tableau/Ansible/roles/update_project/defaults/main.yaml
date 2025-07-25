@@ -1,0 +1,12 @@
+##
+JSON_BODY:
+  project:
+    id: "Project ID"
+    name: "Project Name"
+    description: "Project Description"
+    parentProjectId: "Parent Project ID"
+    description: "Project Description"  
+    contentPermissions: "ManagedByOwner"
+    controllingPermissionsProjectId: "Controlling Permissions Project ID"
+    owner:
+      id: "Owner ID"

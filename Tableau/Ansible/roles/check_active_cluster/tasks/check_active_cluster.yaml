@@ -1,0 +1,34 @@
+# Move up 4 levels:
+# zachariah-mayfield/Tableau/Ansible/roles/check_active_cluster/tasks/ # This is where you are at now.
+# tasks is where you are at now.
+# ../ → roles/check_active_cluster/ # This is up one level
+# ../../ → roles/ # This is up two levels
+# ../../../ → Ansible/ # This is up three levels
+# ../../../../ → Tableau/ # This is up four levels
+# Now you are at zachariah-mayfield/
+# From there, move into:
+# CyberArk/Ansible/roles/get_cyberark_password/tasks/v2_get_cyberark_password.yaml
+
+## - name: Include CyberArk password retrieval tasks
+##   include_tasks: ../../../../../CyberArk/Ansible/roles/get_cyberark_password/tasks/v2_get_cyberark_password.yaml
+
+
+- name: Verify Tableau is running.
+  block:
+    - name: Verify Tableau is running.
+      win_shell: tsm status
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Status
+      ignore_errors: true
+      failed_when: not TSM_Status.stdout is search(tableau_status_running) or TSM_Status.rc !=0
+      changed_when: TSM_Status.stdout is search(tableau_status_running)
+      until: TSM_Status.stdout is search(tableau_status_running) or TSM_Status.stdout is search(tableau_status_stopped)
+      retries: 10
+      delay: 5
+
+#  rescue:
+#    - name: Rescue
+#  always:
+#    - name: Always

@@ -1,0 +1,43 @@
+CyberArk_Accounts:
+  - name: Development_CyberArk_Account
+    environment: Development
+    base_url: "https://your-cyberark-instance/api/Accounts?"
+    cert_location: "path/to/client.pem"
+    key_location: "path/to/client.key"
+    accounts:
+      - account_name: "1st_Service_Account"
+        app_id: "your_App_ID"
+        safe: "your_Safe"
+        object: "your_Object"
+      - account_name: "2nd_Service_Account"
+        app_id: "your_App_ID"
+        safe: "your_Safe"
+        object: "your_Object"
+  - name: UAT_CyberArk_Account
+    environment: UAT
+    base_url: "https://your-cyberark-instance/api/Accounts?"
+    cert_location: "path/to/client.pem"
+    key_location: "path/to/client.key"
+    accounts:
+      - account_name: "1st_Service_Account"
+        app_id: "your_App_ID"
+        safe: "your_Safe"
+        object: "your_Object"
+      - account_name: "2nd_Service_Account"
+        app_id: "your_App_ID"
+        safe: "your_Safe"
+        object: "your_Object"
+  - name: Production_CyberArk_Account
+    environment: Production
+    base_url: "https://your-cyberark-instance/api/Accounts?"
+    cert_location: "path/to/client.pem"
+    key_location: "path/to/client.key"
+    accounts:
+      - account_name: "1st_Service_Account"
+        app_id: "your_App_ID"
+        safe: "your_Safe"
+        object: "your_Object"
+      - account_name: "2nd_Service_Account"
+        app_id: "your_App_ID"
+        safe: "your_Safe"
+        object: "your_Object"

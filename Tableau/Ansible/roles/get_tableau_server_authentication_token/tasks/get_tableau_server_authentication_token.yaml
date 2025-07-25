@@ -1,0 +1,54 @@
+
+- name: Get the API Version of your Tableau Server and Get a Tableau Authentication API Token.
+  block:
+# The 3.1 in the URL string is just a stab at what the API Version of the Tableau Server could be.  
+    - name: Get the API Version of your Tableau Server.
+      ansible.builtin.url:
+        url: "https://{{ TableauServerName }}/api/3.1/serverinfo"
+        method: GET
+        headers: 
+          #Content-Type: application/json
+          Accept: application/json
+          #HTTP_VERSION: "HTTP1/1"
+        #body: 
+          #credentials:
+            #username: "{{ hostvars['localhost'].CyberArk_UserName }}"
+            #password: "{{ hostvars['localhost'].CyberArk_Password }}"
+        #body_format: json
+        validate_certs: false
+        return_content: true
+      register: Tableau_API_Version_Info
+
+    - name: Set Ansible Fact Tableau_API_Version
+      ansible.builtin.set_fact:
+        Tableau_API_Version: "{{ Tableau_API_Version_Info.json.serverInfo.restApiVersion }}"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Connect to the Tableau API Version using the ansible fact above, and get a Tableau Authentication API Token.
+      ansible.builtin.url:
+        url: "https://{{ TableauServerName }}/api/{{ Tableau_API_Version }}/auth/signin"
+        method: POST
+        headers:
+          Content-Type: application/json
+          Accept: application/json
+          HTTP_VERSION: "HTTP1/1"
+        body: 
+          credentials:
+            username: "{{ hostvars['localhost'].CyberArk_UserName }}"
+            password: "{{ hostvars['localhost'].CyberArk_Password }}"
+            site:
+              contentURL: ""
+        body_format: json
+        validate_certs: false
+        use_proxy: false
+        follow_redirects: all
+        return_content: true
+      register: Connect_To_Tableau
+      failed_when: Connect_To_Tableau.status !=200
+
+    - name: Set Ansible Fact Tableau_Authentication_Token
+      ansible.builtin.set_fact:
+        Tableau_Authentication_Token: "{{ Connect_To_Tableau.json.credentials.token }}"
+      delegate_to: localhost
+      run_once: true

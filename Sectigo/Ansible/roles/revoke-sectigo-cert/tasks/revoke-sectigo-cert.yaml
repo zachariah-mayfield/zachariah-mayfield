@@ -1,0 +1,21 @@
+## page 103 - comming soon    
+
+- name: Revoke Certificates - Block
+  block:
+    - name: 
+      ansible.builtin.uri:
+        url: "https://{{ api_url }}/ssl/v1/revoke/{{ item }}"
+        method: POST
+        headers:
+          Content-Type: application/json  
+          customerUri: "{{ Company-Domain }}"  
+          login: "{{ sectigo_login }}"  
+          password: "{{ sectigo_password }}"
+        body: 
+          reason: "{{ reason }}"
+        body_format: json
+        validate_certs: false
+      register: revoke
+      failed_when: revoke.status != 204
+      changed_when: revoke.status == 204
+      loop: "{{ [sslidx_global] | flatten }}"

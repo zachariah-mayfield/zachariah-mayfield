@@ -1,0 +1,43 @@
+- name: Retrieve a secret from Bitwarden Secrets Manager
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    bitwarden_client_id: "your-client-id"
+    bitwarden_client_secret: "your-client-secret"
+    bitwarden_auth_url: "https://identity.bitwarden.com/connect/token"  # Confirm in your portal
+    bitwarden_secrets_api_url: "https://secrets.bitwarden.com"  # Confirm in your portal
+    bitwarden_secret_id: "your-secret-id"  # UUID of the secret
+
+  tasks:
+    - name: Authenticate to Bitwarden Secrets Manager
+      uri:
+        url: "{{ bitwarden_auth_url }}"
+        method: POST
+        headers:
+          Content-Type: application/x-www-form-urlencoded
+        body: >
+          grant_type=client_credentials
+          &client_id={{ bitwarden_client_id }}
+          &client_secret={{ bitwarden_client_secret }}
+          &scope=secrets.read
+        body_format: form-urlencoded
+        return_content: yes
+      register: auth_response
+
+    - name: Set Bitwarden Access Token
+      set_fact:
+        bitwarden_access_token: "{{ auth_response.json.access_token }}"
+
+    - name: Retrieve Secret
+      uri:
+        url: "{{ bitwarden_secrets_api_url }}/api/secrets/{{ bitwarden_secret_id }}"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ bitwarden_access_token }}"
+        return_content: yes
+      register: secret_response
+
+    - name: Show Secret (for debugging)
+      debug:
+        var: secret_response.json

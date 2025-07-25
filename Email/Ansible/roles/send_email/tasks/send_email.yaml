@@ -1,0 +1,18 @@
+
+# The ansible_failed_task and ansible_failed_result are built in default varriables for Ansible.
+- name: Send E-Mail
+  community.general.mail:
+    to: "{{ Recipient_Email_Address }}"
+    from: "{{ Sender_Email_Address }}"
+    subject: "{{ Email_Subject }}"
+    body:
+      "First Line \n
+      \n Second Line. \n
+      \n Third Line. \n
+      \n Forth Line. \n
+      \n Fifth Line. \n
+      \n {{ ansible_failed_result | to_json(indent=4, sort_keys=True }} \n "
+    host: "{{ Email_Host }}"
+    port: 25
+  delegate_to: localhost
+  run_once: true

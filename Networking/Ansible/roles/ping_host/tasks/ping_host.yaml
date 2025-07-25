@@ -1,0 +1,9 @@
+      
+- name: Ping Host
+  block:
+    - name: Ping Host
+      shell: |
+        ping -c 1 "{{ item }}"
+      ignore_errors: yes
+      loop: "{{ Server_Names }}"
+      register: Ping_Output

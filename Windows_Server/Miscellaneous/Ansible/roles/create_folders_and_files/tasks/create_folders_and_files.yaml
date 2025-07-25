@@ -1,0 +1,37 @@
+      
+- name: Create Files and Folders on a Windows Server.
+  block:
+    - name: Check if Folder Exists.
+      ansible.windows.win_stat:
+        Path: "{{ item }}"
+      register: Folder_Status
+      loop: "{{ Folders_to_Create }}"
+
+    - name: Create Folder if Folder does not Exist.
+      win_file:
+        path: "{{ item }}"
+        state: directory
+      loop: "{{ Folder_Status.results }}"
+      when: "{{ not item.Folder_Status.exists }}"
+
+    - name: Set Epoch Date
+    ansible.builtin.set_fact: 
+        Epoch_Date: "{{ ansible_date_time.date }}"
+
+    - name: Set Epoch Time
+    ansible.builtin.set_fact: 
+        Epoch_Time: "{{ ansible_date_time.time }}"
+
+    - name: Set Epoch
+    ansible.builtin.set_fact: 
+        Epoch_Date: "{{ Epoch_Date }}_{{ Epoch_Time }}"
+
+    - name: Set Date and Time format.
+    ansible.builtin.set_fact: 
+        Current_Date_Time: "{{ ansible_date_time.iso8601 | regex_replace('[-:TZ]', '') }}"
+
+    - name: Create Log File with Time and Date Stamp.
+      copy:
+        content: "This file was created at {{ Current_Date_Time }}"
+        dest: "C:\\Tableau\\Logs\\Tableau_Log_{{ Current_Date_Time }}_.log"
+      

@@ -1,0 +1,32 @@
+Tableau-Company-Site-Name: 'Your-Tableau-Company-Site-Name'
+Tableau-Company-Group-Name: 'Your-Tableau-Company-Group-Name'
+TableauServerName: "Your-Company-Tableau-Server-Name"
+Tableau_API_UserName: "{{ hostvars['localhost'].CyberArk_UserName }}"
+Tableau_API_Password: "{{ hostvars['localhost'].CyberArk_Password }}"
+
+# "This is generated in another ansible role"
+Tableau_API_Version: "{{ Tableau_API_Version }}"
+# "This is generated in another ansible role"
+Tableau_Authentication_Token: "{{ Tableau_Authentication_Token }}"
+
+# "This is generated in another ansible role"
+Tableau_Sites: "{{ Tableau_Sites_Response.json.sites.site }}"
+Tableau_Site_Info: "{{ Tableau_Sites_Response.json.sites.site | selectattr('name', 'search', 'Tableau-Company-Site-Name' }}"
+Tableau_Site_Name: "{{ (Tableau_Sites_Response.json.sites.site | selectattr('name', 'search', 'Tableau-Company-Site-Name' | first).name }}"
+Tableau_Site_ID: "{{ (Tableau_Sites_Response.json.sites.site | selectattr('name', 'search', 'Tableau-Company-Site-Name' | first).id }}"
+
+# "This is generated in another ansible role"
+Tableau_Groups: "{{ Tableau_Groups_Response.json.groups.group }}"
+Tableau_Group_Info: "{{ Tableau_Groups_Response.json.groups.group | selectattr('name', 'search', 'Tableau-Company-Group-Name' }}"
+Tableau_Group_Name: "{{ (Tableau_Groups_Response.json.groups.group | selectattr('name', 'search', 'Tableau-Company-Group-Name' | first).name }}"
+Tableau_Group_ID: "{{ (Tableau_Groups_Response.json.groups.group | selectattr('name', 'search', 'Tableau-Company-Group-Name' | first).id }}"
+
+Tableau_Users: "{{ Tableau_Users_Response.json.users.group }}"
+Tableau_User_Info: "{{ Tableau_Users_Response.json.users.group | selectattr('name', 'search', 'Tableau-Company-User-Name' }}"
+Tableau_User_Name: "{{ (Tableau_Users_Response.json.users.group | selectattr('name', 'search', 'Tableau-Company-User-Name' | first).name }}"
+Tableau_User_ID: "{{ (Tableau_Users_Response.json.users.group | selectattr('name', 'search', 'Tableau-Company-User-Name' | first).id }}"
+
+Environment: 
+  - 'Development',
+  - 'UAT',
+  - 'Production'

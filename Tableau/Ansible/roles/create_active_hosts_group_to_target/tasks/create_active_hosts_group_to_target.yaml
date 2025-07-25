@@ -1,0 +1,32 @@
+# Original list of targeted hosts will be defined in the Main PlayBook YAML file or from a Ping Hosts results YAML file variable.
+
+- name: Create Active_Cluster server group to target.
+  block:
+    - name: Verify Tableau is running.
+      win_shell: tsm status
+      args:
+        executable: cmd
+        chdir: "C:\\Tableau"
+      register: TSM_Status
+      ignore_errors: true
+      failed_when: not TSM_Status.stdout is search(tableau_status_running) or TSM_Status.rc !=0
+      changed_when: TSM_Status.stdout is search(tableau_status_running)
+      until: TSM_Status.stdout is search(tableau_status_running) or TSM_Status.stdout is search(tableau_status_stopped)
+      retries: 10
+      delay: 5
+    
+    - name: Creat Active_Cluster server group.
+      add_host:
+        groups: Active_Cluster
+        ansible_connection: winrm
+        ansible_winrm_transport: ntlm
+        ansible_winrm_read_timeout_sec: 180
+        ansible_port: 5985
+        ansible_user: "{{ hostvars['localhost'].CyberArk_UserName }}"
+        ansible_password: "{{ hostvars['localhost'].CyberArk_Password }}"
+        host: "{{ ansible_fqdn }}"
+      no_log: false
+
+    - name: Debug Active_Cluster
+      debug: 
+        msg: "{{ groups['Active_Cluster'] }}"

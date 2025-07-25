@@ -1,0 +1,17 @@
+# Main Play Book for CyberArk
+
+- name: Main - Add Ansible Collections
+  hosts: localhost
+  collections:
+    - cyberark.pas
+
+  tasks:
+
+- name: Main - Get-CyberArk-Password  
+  hosts: localhost
+  tasks: 
+    - name: Execute role Get-CyberArk-Password
+      include_role: 
+        name: get-cyberark-password
+        tasks_from: task_get-cyberark-password.yaml # "../../"
+        defaults_from: main.yaml 

@@ -1,0 +1,46 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Search Auto Apply</title>
+    <script>
+        async function searchJobs() {
+            const zip = document.getElementById('zip').value;
+            const radius = document.getElementById('radius').value;
+            const keywords = document.getElementById('keywords').value.split(',');
+            const remote = document.getElementById('remote').checked;
+            const autoApply = document.getElementById('autoApply').checked;
+
+            const response = await fetch('/search_jobs', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    zip_code: zip,
+                    radius: parseInt(radius),
+                    keywords: keywords,
+                    remote: remote,
+                    auto_apply: autoApply
+                })
+            });
+
+            const data = await response.json();
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Job Results:</h3>' + data.map(job =>
+                `<p><strong>${job.title}</strong> at ${job.company}<br><a href="${job.url}" target="_blank">Apply</a></p>`
+            ).join('');
+        }
+    </script>
+</head>
+<body>
+    <h1>Job Search Auto Apply</h1>
+    <label>ZIP Code: <input id="zip" type="text" value="32563"></label><br>
+    <label>Radius (miles): <input id="radius" type="number" value="30"></label><br>
+    <label>Keywords (comma-separated): <input id="keywords" type="text" value="Python,DevOps"></label><br>
+    <label><input id="remote" type="checkbox"> Include Remote Jobs</label><br>
+    <label><input id="autoApply" type="checkbox"> Auto Apply</label><br>
+    <button onclick="searchJobs()">Search Jobs</button>
+
+    <div id="results"></div>
+</body>
+</html>
